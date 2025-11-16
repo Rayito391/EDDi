@@ -1,3 +1,4 @@
+import CustomButton from "../../../components/global/CustomButton/CustomButton";
 import CustomInput from "../../../components/global/CustomInput/CustomInput";
 import Logo from "../../../Logo.svg";
 import "./LoginPage.css";
@@ -15,9 +16,7 @@ function LoginPage() {
           <h2>Bienvenido</h2>
           <CustomInput placeholder="Correo" type="email" />
           <CustomInput placeholder="Contrasena" type="password" />
-          <button className="login-button" type="button">
-            Login
-          </button>
+          <CustomButton label="Iniciar Sesion" onClick={() => {}} />
         </div>
       </div>
     </div>
