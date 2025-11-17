@@ -9,11 +9,12 @@ class Docente(db.Model):
     email = db.Column('email', db.String(100), nullable=True)
     password_email = db.Column('passwordemail', db.String(50), nullable=True)
 
+    personal = db.relationship('Personal', backref='docentes')
+
     def to_dict(self):
         return {
             "id": self.id,
             "personal_id": self.personal_id,
             "puesto_academico": self.puesto_academico,
             "email": self.email,
-            "password_email": self.password_email
         }
