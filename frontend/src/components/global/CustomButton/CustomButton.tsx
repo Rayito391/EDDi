@@ -1,14 +1,26 @@
+import { ButtonHTMLAttributes, ReactNode } from 'react';
 import './CustomButton.css';
 
-interface CustomButtonProps {
+interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: string;
-  onClick?: (value) => void;
+  icon?: ReactNode;
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger';
 }
 
-function CustomButton({ label, onClick }: CustomButtonProps) {
+function CustomButton({
+  label,
+  icon,
+  variant = 'primary',
+  className = '',
+  ...buttonProps
+}: CustomButtonProps) {
   return (
-    <button onClick={onClick} className="custom-button">
-      {label}
+    <button
+      className={['custom-button', `custom-button--${variant}`, className].filter(Boolean).join(' ')}
+      {...buttonProps}
+    >
+      {icon && <span className="custom-button__icon">{icon}</span>}
+      <span className="custom-button__label">{label}</span>
     </button>
   );
 }
