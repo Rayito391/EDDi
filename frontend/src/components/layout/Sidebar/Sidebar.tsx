@@ -25,11 +25,7 @@ interface NavItem {
 const NAV_ITEMS: Record<SidebarRole, NavItem[]> = {
   docente: [
     { key: 'inicio', label: 'Inicio', icon: HomeIcon },
-    {
-      key: 'generarDocumentos',
-      label: 'Generar Documentos',
-      icon: DocumentIcon,
-    },
+    { key: 'generarDocumentos', label: 'Generar Documentos', icon: DocumentIcon },
     { key: 'documentos', label: 'Mis Documentos', icon: RecordIcon },
     { key: 'perfil', label: 'Mi Perfil', icon: ProfileIcon },
   ],
@@ -41,11 +37,7 @@ const NAV_ITEMS: Record<SidebarRole, NavItem[]> = {
   desarrollo: [
     { key: 'inicio', label: 'Inicio', icon: HomeIcon },
     { key: 'asignarTutorados', label: 'Asignar tutorados', icon: AddUserIcon },
-    {
-      key: 'asignarAsesorados',
-      label: 'Asignar asesorados',
-      icon: PeopleIcon,
-    },
+    { key: 'asignarAsesorados', label: 'Asignar asesorados', icon: PeopleIcon },
     { key: 'quejas', label: 'Revisar quejas', icon: SearchIcon },
     { key: 'perfil', label: 'Mi perfil', icon: ProfileIcon },
   ],
@@ -61,9 +53,10 @@ interface SidebarProps {
   userName?: string;
   activeKey?: string;
   onSelect?: (key: string) => void;
+  onLogout?: () => void;
 }
 
-const Sidebar = ({ role = 'docente', activeKey, onSelect }: SidebarProps) => {
+const Sidebar = ({ role = 'docente', userName, activeKey, onSelect, onLogout }: SidebarProps) => {
   const navItems = NAV_ITEMS[role];
   const currentActive = activeKey ?? navItems[0]?.key;
 
@@ -72,8 +65,8 @@ const Sidebar = ({ role = 'docente', activeKey, onSelect }: SidebarProps) => {
       <div className="sidebar__brand">
         <div className="sidebar__brand-mark">EDDi</div>
         <div>
-          <p className="sidebar__brand-title">Aleman Gay</p>
-          <p className="sidebar__brand-subtitle">Gestion Academica</p>
+          <p className="sidebar__brand-title">{userName || 'Usuario'}</p>
+          <p className="sidebar__brand-subtitle">{role}</p>
         </div>
       </div>
 
@@ -102,7 +95,7 @@ const Sidebar = ({ role = 'docente', activeKey, onSelect }: SidebarProps) => {
       </nav>
 
       <div className="sidebar__footer">
-        <CustomButton label="Cerrar sesión" variant="secondary" onClick={() => {}} />
+        <CustomButton label="Cerrar sesion" variant="secondary" onClick={onLogout} />
       </div>
     </aside>
   );

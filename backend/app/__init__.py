@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from sqlalchemy.orm import DeclarativeBase
+import os
 
 class Base(DeclarativeBase):
     pass
@@ -10,8 +12,12 @@ db = SQLAlchemy(model_class=Base)
 def create_app():
     app = Flask(__name__)
     
-    app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:postgres@localhost:5432/TecDeCuliacann"
+    default_uri = "postgresql://postgres:password@localhost:5432/TecDeCuliacann"
+    app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI", default_uri)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    # Habilitar CORS para el front en localhost
+    CORS(app, supports_credentials=True, origins=["http://localhost:3000", "http://127.0.0.1:3000"])
     
     db.init_app(app)
 
