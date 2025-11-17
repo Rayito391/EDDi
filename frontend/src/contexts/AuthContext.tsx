@@ -19,6 +19,10 @@ type AuthContextValue = {
   error: string;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<{ ok: boolean; message: string }>;
 };
 
 const mapRole = (puesto?: string): SidebarRole => {
@@ -79,9 +83,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    try {
+      const res = await fetch('http://localhost:5000/auth/change-password', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return { ok: false, message: data?.error || 'No se pudo actualizar la contraseña' };
+      }
+
+      return { ok: true, message: data?.message || 'Contraseña actualizada.' };
+    } catch (error) {
+      return { ok: false, message: 'No se pudo conectar con el servidor' };
+    }
+  };
+
   const value = useMemo(
-    () => ({ user, role, isLoggedIn: Boolean(user), loading, error, login, logout }),
-    [user, role, loading, error]
+    () => ({
+      user,
+      role,
+      isLoggedIn: Boolean(user),
+      loading,
+      error,
+      login,
+      logout,
+      changePassword,
+    }),
+    [user, role, loading, error, login, logout, changePassword]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
