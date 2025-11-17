@@ -1,5 +1,4 @@
-from main import Base
-from app import db
+from app import Base, db
 
 
 class Personal(Base):
