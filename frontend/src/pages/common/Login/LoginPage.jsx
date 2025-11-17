@@ -37,12 +37,12 @@ function LoginPage({ onSubmit, isLoading = false, error }) {
               onChange={(val) => setPassword(val)}
               required
             />
-            {error && <p className="login-error">{error}</p>}
             <CustomButton
               type="submit"
               label={isLoading ? "Entrando..." : "Iniciar Sesion"}
               disabled={isLoading}
             />
+            {error && <p className="login-error">{error}</p>}
           </form>
         </div>
       </div>

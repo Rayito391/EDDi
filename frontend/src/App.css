@@ -15,54 +15,6 @@
   justify-content: center;
 }
 
-.app-content {
-  flex: 1;
-  padding: 1.75rem 2.25rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-}
-
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.app-kicker {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.8rem;
-  color: #64748b;
-}
-
-.app-title {
-  margin: 0.15rem 0 0.25rem 0;
-}
-
-.app-subtitle {
-  margin: 0;
-  color: #475569;
-}
-
-.app-panel {
-  background: #fff;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.08);
-}
-
-.app-panel h2 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-}
-
-.app-panel p {
-  margin: 0;
-  color: #475569;
-}
-
 .login-form {
   display: flex;
   flex-direction: column;
