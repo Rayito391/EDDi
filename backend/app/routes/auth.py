@@ -1,4 +1,4 @@
-from flask import Blueprint, make_response, request
+from flask import Blueprint, jsonify, make_response, request
 from app.models.docente import Docente
 
 auth_blueprint = Blueprint('auth', __name__, url_prefix='/auth')
@@ -21,7 +21,7 @@ def login():
     if not docente:
         return {"error": "Credenciales invalidas"}, 401
     
-    response = make_response()
+    response = make_response(jsonify(docente.to_dict()))
     response.status_code = 200
     response.set_cookie('docente_id', str(docente.id), httponly=True, samesite='Lax')
 

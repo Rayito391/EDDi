@@ -8,3 +8,12 @@ class Docente(db.Model):
     puesto_academico = db.Column('puestoacademico', db.String(100), nullable=True)
     email = db.Column('email', db.String(100), nullable=True)
     password_email = db.Column('passwordemail', db.String(50), nullable=True)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "personal_id": self.personal_id,
+            "puesto_academico": self.puesto_academico,
+            "email": self.email,
+            "password_email": self.password_email
+        }
