@@ -5,6 +5,10 @@ type DocentePayload = {
   id: number;
   email: string;
   puesto_academico?: string;
+  primer_nombre?: string;
+  segundo_nombre?: string;
+  apellido_paterno?: string;
+  apellido_materno?: string;
 };
 
 type AuthContextValue = {
@@ -90,3 +94,4 @@ export function useAuth() {
   }
   return ctx;
 }
+

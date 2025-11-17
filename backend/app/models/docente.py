@@ -17,4 +17,8 @@ class Docente(db.Model):
             "personal_id": self.personal_id,
             "puesto_academico": self.puesto_academico,
             "email": self.email,
+            "primer_nombre": self.personal.primer_nombre if self.personal else None,
+            "segundo_nombre": self.personal.segundo_nombre if self.personal else None,
+            "apellido_paterno": self.personal.apellido_paterno if self.personal else None,
+            "apellido_materno": self.personal.apellido_materno if self.personal else None,
         }

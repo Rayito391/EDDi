@@ -3,6 +3,7 @@ import Sidebar from './components/layout/Sidebar/Sidebar';
 import './App.css';
 import LoginPage from './pages/common/Login/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import ProfilePanel from './components/profile/ProfilePanel';
 
 function AppContent() {
   const { isLoggedIn, user, role, login, logout, loading, error } = useAuth();
@@ -14,11 +15,16 @@ function AppContent() {
 
   if (!isLoggedIn) {
     return (
-      <div>
+      <div className="app-shell app-shell--login">
         <LoginPage onSubmit={login} isLoading={loading} error={error} />
       </div>
     );
   }
+
+  const fullLastName = [user?.apellido_paterno, user?.apellido_materno]
+    .filter(Boolean)
+    .join(' ')
+    .trim();
 
   return (
     <div className="app-shell">
@@ -29,6 +35,30 @@ function AppContent() {
         onSelect={setActiveSection}
         onLogout={logout}
       />
+      <main className="app-content">
+        <header className="app-header">
+          <div>
+            <h1 className="app-title">Panel {role}</h1>
+          </div>
+        </header>
+
+        <section className="app-panel">
+          {activeSection === 'perfil' ? (
+            <ProfilePanel
+              role={role}
+              email={user?.email}
+              firstName={user?.primer_nombre}
+              lastName={fullLastName}
+              onBack={() => setActiveSection('inicio')}
+            />
+          ) : (
+            <>
+              <h2>Seccion activa</h2>
+              <p>{activeSection ?? 'Selecciona una opcion del menu'}</p>
+            </>
+          )}
+        </section>
+      </main>
     </div>
   );
 }
