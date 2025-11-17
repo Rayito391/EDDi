@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Sidebar from './components/layout/Sidebar/Sidebar';
+import Sidebar, { SidebarRole } from './components/layout/Sidebar/Sidebar';
 import './App.css';
 import LoginPage from './pages/common/Login/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -26,6 +26,30 @@ function AppContent() {
     .join(' ')
     .trim();
 
+  const roleCopy: Record<SidebarRole, { title: string; subtitle: string }> = {
+    docente: {
+      title: 'Panel de Generación de Documentos EDDi',
+      subtitle: 'Bienvenido al sistema. Use el menú lateral para ir a una interfaz',
+    },
+    subdireccion: {
+      title: 'Panel Subdirección',
+      subtitle:
+        'Resumen del modulo de Subdirección. Vea los docentes registrados o revise su perfil',
+    },
+    desarrollo: {
+      title: 'Panel Desarrollo Académico',
+      subtitle:
+        'Bienvenido al módulo de Desarrollo Académico. Use las opciones del menú lateral para asignar o consultar el numero de tutorados por docente',
+    },
+    administrativo: {
+      title: 'Panel Área encargada',
+      subtitle:
+        'Bienvenido al módulo del área encargada. Use las opciones del menú lateral para revisar las quejas de los docentes',
+    },
+  };
+
+  const roleText = roleCopy[role];
+
   return (
     <div className="app-shell">
       <Sidebar
@@ -38,10 +62,10 @@ function AppContent() {
       <main className="app-content">
         <header className="app-header">
           <div>
-            <h1 className="app-title">Panel {role}</h1>
+            <h1 className="app-title">{roleText.title}</h1>
+            <p className="app-subtitle">{roleText.subtitle}</p>
           </div>
         </header>
-
         <section className="app-panel">
           {activeSection === 'perfil' ? (
             <ProfilePanel
