@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, make_response, request
 import jwt
 from app.models.docente import Docente
-from app.utils.auth import enconde_jwt, docente_from_jwt
+from app.utils.auth import enconde_jwt, docente_from_request
 from app import db
 
 auth_blueprint = Blueprint('auth', __name__, url_prefix='/auth')
@@ -40,13 +40,8 @@ def login():
 
 @auth_blueprint.get('/me')
 def get_current_user():
-    token = request.cookies.get('auth_token')
-
-    if not token:
-        return {"error": "No autenticado"}, 401
-    
     try:
-        docente = docente_from_jwt(token)
+        docente = docente_from_request(request)
 
         return jsonify(docente.to_dict()), 200
     except ValueError as e:
@@ -55,7 +50,7 @@ def get_current_user():
 @auth_blueprint.patch('/change-password')
 def change_password():
     try:
-        docente = docente_from_jwt(request.cookies.get('auth_token'))
+        docente = docente_from_request(request)
 
         if not request.is_json:
             return {"error": "Entradas invalidas"}, 400

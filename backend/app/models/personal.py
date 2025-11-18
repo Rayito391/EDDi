@@ -11,3 +11,15 @@ class Personal(db.Model):
     curp = db.Column('curp', db.String(18), nullable=False)
     rfc = db.Column('rfc', db.String(13), nullable=False)
     fecha_ingreso = db.Column('fechaingreso', db.Date, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "primer_nombre": self.primer_nombre,
+            "segundo_nombre": self.segundo_nombre,
+            "apellido_paterno": self.apellido_paterno,
+            "apellido_materno": self.apellido_materno,
+            "curp": self.curp,
+            "rfc": self.rfc,
+            "fecha_ingreso": self.fecha_ingreso.isoformat() if self.fecha_ingreso else None,
+        }

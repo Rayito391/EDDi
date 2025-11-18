@@ -12,7 +12,7 @@ db = SQLAlchemy(model_class=Base)
 def create_app():
     app = Flask(__name__)
     
-    default_uri = "postgresql://postgres:password@localhost:5432/TecDeCuliacann"
+    default_uri = "postgresql://postgres:postgres@localhost:5432/TecDeCuliacann"
     app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("SQLALCHEMY_DATABASE_URI", default_uri)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -25,7 +25,9 @@ def create_app():
     from app.models.docente import Docente
         
     from app.routes.auth import auth_blueprint
+    from app.routes.documentos import documentos_blueprint
     app.register_blueprint(auth_blueprint)
+    app.register_blueprint(documentos_blueprint)
     
     with app.app_context():
         db.create_all()
