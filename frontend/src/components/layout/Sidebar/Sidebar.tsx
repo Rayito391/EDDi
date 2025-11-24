@@ -9,6 +9,7 @@ import GroupIcon from '../../../assets/icons/GroupIcon';
 import AddUserIcon from '../../../assets/icons/AddUserIcon';
 import PeopleIcon from '../../../assets/icons/PeopleIcon';
 import SearchIcon from '../../../assets/icons/SearchIcon';
+import OctagonXIcon from '../../../assets/icons/OctagonXIcon';
 
 export type SidebarRole = 'docente' | 'subdireccion' | 'desarrollo' | 'administrativo';
 
@@ -28,6 +29,7 @@ const NAV_ITEMS: Record<SidebarRole, NavItem[]> = {
     { key: 'generarDocumentos', label: 'Generar Documentos', icon: DocumentIcon },
     { key: 'documentos', label: 'Mis Documentos', icon: RecordIcon },
     { key: 'perfil', label: 'Mi Perfil', icon: ProfileIcon },
+    { key: 'quejas', label: 'Quejas', icon: OctagonXIcon },
   ],
   subdireccion: [
     { key: 'inicio', label: 'Inicio', icon: HomeIcon },

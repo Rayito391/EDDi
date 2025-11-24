@@ -28,14 +28,17 @@ def create_app():
     from app.models.expediente_docente import ExpedienteDocente
     from app.models.tutoria_docente import TutoriaDocente
     from app.models.documento_generado import DocumentoGenerado
+    from app.models.queja import Queja
     from app.models.tipo_documento import TipoDocumento
         
     from app.routes.auth import auth_blueprint
     from app.routes.documentos import documentos_blueprint
     from app.routes.docentes import docentes_blueprint
+    from app.routes.quejas import quejas_blueprint
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(documentos_blueprint)
     app.register_blueprint(docentes_blueprint)
+    app.register_blueprint(quejas_blueprint)
     
     with app.app_context():
         db.create_all()

@@ -12,6 +12,10 @@ function AppContent() {
   const { isLoggedIn, user, role, login, logout, loading, error } = useAuth();
   const [activeSection, setActiveSection] = useState<string | undefined>();
   const [canGenerateDocs, setCanGenerateDocs] = useState(true);
+  const [quejaDesc, setQuejaDesc] = useState('');
+  const [quejaMsg, setQuejaMsg] = useState<string | null>(null);
+  const [quejaError, setQuejaError] = useState<string | null>(null);
+  const [quejaLoading, setQuejaLoading] = useState(false);
   const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
@@ -50,6 +54,35 @@ function AppContent() {
     .filter(Boolean)
     .join(' ')
     .trim();
+
+  const handleQuejaSubmit = async () => {
+    try {
+      setQuejaLoading(true);
+      setQuejaMsg(null);
+      setQuejaError(null);
+      if (!quejaDesc.trim()) {
+        setQuejaError('Ingrese una descripción');
+        return;
+      }
+      const res = await fetch(`${apiBase}/quejas/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ descripcion: quejaDesc.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || 'No se pudo enviar la queja');
+      }
+      setQuejaMsg('Queja enviada correctamente');
+      setQuejaDesc('');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Error al enviar la queja';
+      setQuejaError(msg);
+    } finally {
+      setQuejaLoading(false);
+    }
+  };
 
   const roleCopy: Record<SidebarRole, { title: string; subtitle: string }> = {
     docente: {
@@ -104,6 +137,28 @@ function AppContent() {
             <DocumentGenerator canGenerateDocs={canGenerateDocs} />
           ) : activeSection === 'documentos' ? (
             <MyDocuments />
+          ) : activeSection === 'quejas' ? (
+            <div className="quejas-panel">
+              <h2>Quejas</h2>
+              <p>Envía una descripción para solicitar revisión o aclaración.</p>
+              <textarea
+                className="quejas-textarea"
+                placeholder="Describe tu queja..."
+                value={quejaDesc}
+                onChange={(e) => setQuejaDesc(e.target.value)}
+                rows={5}
+              />
+              <div className="quejas-actions">
+                <CustomButton
+                  label={quejaLoading ? 'Enviando...' : 'Enviar queja'}
+                  className="custom-button--small"
+                  onClick={handleQuejaSubmit}
+                  disabled={quejaLoading}
+                />
+              </div>
+              {quejaMsg && <p className="quejas-status quejas-status--ok">{quejaMsg}</p>}
+              {quejaError && <p className="quejas-status quejas-status--error">{quejaError}</p>}
+            </div>
           ) : (
             <>
               {role === 'docente' ? (
@@ -125,6 +180,12 @@ function AppContent() {
                     variant="outline"
                     className="custom-button--small"
                     onClick={() => setActiveSection('perfil')}
+                  />
+                  <CustomButton
+                    label="Quejas"
+                    variant="outline"
+                    className="custom-button--small"
+                    onClick={() => setActiveSection('quejas')}
                   />
                   <div className="docente-info">
                     <p className="docente-info__name">

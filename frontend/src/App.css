@@ -89,6 +89,47 @@
   color: #cbd5e1;
 }
 
+.quejas-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.quejas-textarea {
+  width: 100%;
+  background: #0b1324;
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  color: #e2e8f0;
+  min-height: 140px;
+}
+
+.quejas-textarea::placeholder {
+  color: #94a3b8;
+}
+
+.quejas-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quejas-status {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.5rem;
+}
+
+.quejas-status--ok {
+  background: #0f3d2e;
+  color: #bbf7d0;
+}
+
+.quejas-status--error {
+  background: #2a0c12;
+  color: #fecdd3;
+}
+
 .login-form {
   display: flex;
   flex-direction: column;
