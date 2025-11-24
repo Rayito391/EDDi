@@ -91,6 +91,10 @@
   align-items: center;
   gap: 1rem;
 }
+.docgen__preview-actions{
+  display: flex;
+  gap: .75rem;
+}
 
 .docgen__preview-title {
   margin: 0;

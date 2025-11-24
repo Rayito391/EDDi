@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProfilePanel from './components/profile/ProfilePanel';
 import DocumentGenerator from './components/documents/DocumentGenerator';
 import MyDocuments from './components/documents/MyDocuments';
+import CustomButton from './components/global/CustomButton/CustomButton';
 
 function AppContent() {
   const { isLoggedIn, user, role, login, logout, loading, error } = useAuth();
@@ -105,8 +106,43 @@ function AppContent() {
             <MyDocuments />
           ) : (
             <>
-              <h2>Seccion activa</h2>
-              <p>{activeSection ?? 'Selecciona una opcion del menu'}</p>
+              {role === 'docente' ? (
+                <div className="quick-actions">
+                  <CustomButton
+                    variant="outline"
+                    label="Ir a Generar Documentos"
+                    className="custom-button--small"
+                    onClick={() => setActiveSection('generarDocumentos')}
+                  />
+                  <CustomButton
+                    label="Mis Documentos"
+                    variant="outline"
+                    className="custom-button--small"
+                    onClick={() => setActiveSection('documentos')}
+                  />
+                  <CustomButton
+                    label="Mi Perfil"
+                    variant="outline"
+                    className="custom-button--small"
+                    onClick={() => setActiveSection('perfil')}
+                  />
+                  <div className="docente-info">
+                    <p className="docente-info__name">
+                      {`${
+                        [user?.primer_nombre, user?.segundo_nombre, user?.apellido_paterno, user?.apellido_materno]
+                          .filter(Boolean)
+                          .join(' ') || 'Docente'
+                      }`}
+                    </p>
+                    <p className="docente-info__email">{user?.email || ''}</p>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h2>Seccion activa</h2>
+                  <p>{activeSection ?? 'Selecciona una opcion del menu'}</p>
+                </>
+              )}
             </>
           )}
         </section>

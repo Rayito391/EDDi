@@ -105,7 +105,6 @@ const DocumentGenerator = ({ canGenerateDocs = true }: DocumentGeneratorProps) =
     } catch (_e) {}
 
     doc.setFont('helvetica', 'bold');
-    // Ajusta el tamaño si es muy largo
     const dynamicTitleSize = titleLines.join(' ').length > 60 ? 13 : 16;
     doc.setFontSize(dynamicTitleSize);
     let currentY = 10 + topMargin;

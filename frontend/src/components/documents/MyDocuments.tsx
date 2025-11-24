@@ -124,6 +124,12 @@ const MyDocuments = () => {
       py += 2;
     });
 
+    // Fecha abajo a la derecha
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const fechaStr = new Date(doc.fecha).toLocaleDateString();
+    pdf.text(fechaStr, pageWidth - 15, pageHeight - 15, { align: 'right' });
+
     return pdf;
   };
 
@@ -212,13 +218,14 @@ const MyDocuments = () => {
               <div className="mydocs__item-actions">
                 <CustomButton
                   label="Descargar"
+                  variant="secondary"
                   className="custom-button--small"
                   onClick={() => handleDownload(doc)}
                   disabled={actionLoading === doc.id}
                 />
                 <CustomButton
                   label="Vista previa"
-                  variant="secondary"
+                  variant="outline"
                   className="custom-button--small"
                   onClick={() => handlePreview(doc)}
                   disabled={actionLoading === doc.id}
