@@ -21,6 +21,17 @@ documentos_blueprint = Blueprint('documentos', __name__, url_prefix='/documentos
 ('Documento 13', 'Evaluaciones departamentales y autoevaluación (licenciatura o posgrado)', NULL, NULL),
 ('Documento 14', 'Evaluaciones del desempeño frente a grupo (mínimo 60% del estudiantado)', NULL, NULL)
 """
+@documentos_blueprint.get('/')
+def list_documentos():
+    """Devuelve todos los tipos de documento disponibles."""
+    try:
+        docente_from_request(request)  
+        tipos = TipoDocumento.query.all()
+        return jsonify([t.to_dict() for t in tipos]), 200
+    except ValueError as e:
+        return {"error": e.args}, 401
+
+
 @documentos_blueprint.get('/<int:documento_id>')
 def get_documento(documento_id):
     try:
@@ -31,11 +42,11 @@ def get_documento(documento_id):
             return {"error": "Documento no encontrado"}, 404
         
         match tipo_documento.id:
-            case 4: # Carta de exclusividad laboral (formato oficial)
+            case 4: 
                 res = docente.to_dict()
                 res["persona"] = docente.personal.to_dict()
                 return res
-            case 6: # Constancia de CVU-TecNM actualizado
+            case 6: 
                 return docente.to_dict()
 
 

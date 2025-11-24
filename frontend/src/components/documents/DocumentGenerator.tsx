@@ -1,0 +1,206 @@
+import { useEffect, useMemo, useState } from 'react';
+import './DocumentGenerator.css';
+import CustomButton from '../global/CustomButton/CustomButton';
+import { useAuth } from '../../contexts/AuthContext';
+import { jsPDF } from 'jspdf';
+
+type ApiDocument = {
+  id: number;
+  nombre_corto: string;
+  nombre_completo: string;
+  factor_asociado?: string | null;
+  area_responsable?: string | null;
+};
+
+type DocumentTemplate = {
+  id: number;
+  category: string;
+  title: string;
+  description: string;
+  previewUrl: string;
+};
+
+const SAMPLE_PDF_DATA_URL =
+  'data:application/pdf;base64,JVBERi0xLjQKJcKlwrHDqwoKMSAwIG9iago8PC9UeXBlIC9DYXRhbG9nL1BhZ2VzIDIgMCBSCj4+CmVuZG9iagoKMiAwIG9iago8PC9UeXBlIC9QYWdlcy9LaWRzIFszIDAgUl0vQ291bnQgMQo+PgplbmRvYmoKCjMgMCBvYmoKPDwvVHlwZSAvUGFnZS9QYXJlbnQgMiAwIFIvTWVkaWFCb3ggWzAgMCA2MTIgNzkyXS9Db250ZW50cyA0IDAgUi9SZXNvdXJjZXMgPDwvRm9udCA8PC9GMSA1IDAgUj4+Pj4+CmVuZG9iagoKNCAwIG9iago8PC9MZW5ndGggNDQ+PgpzdHJlYW0KQlQKL0YxIDI0IFRmCjEwMCA3MDAgVGQKKEV4YW1wbGUgUEZGKSBUCkVUCmdyZWFcblZpc3RhIHByZXZpYSBkZSBkb2N1bWVudG8KZW5kc3RyZWFtCmVuZG9iagoKNSAwIG9iago8PC9UeXBlIC9Gb250L1N1YnR5cGUgL1R5cGUxL0Jhc2VGb250IC9IZWx2ZXRpY2E+PgplbmRvYmoKCnhyZWYKMCA2CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDA5OSAwMDAwMCBuIAowMDAwMDAwMTczIDAwMDAwIG4gCjAwMDAwMDAzMjYgMDAwMDAgbiAKMDAwMDAwMDQzNyAwMDAwMCBuIAowMDAwMDAwNjIzIDAwMDAwIG4gCnRyYWlsZXIKPDwvU2l6ZSA2L1Jvb3QgMSAwIFIvSW5mbyA2IDAgUgo+PgpzdGFydHhyZWYKNzQ3CiUlRU9GCg==';
+
+const DocumentGenerator = () => {
+  const [templates, setTemplates] = useState<DocumentTemplate[]>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const resp = await fetch(`${apiBase}/documentos/`, { credentials: 'include' });
+        if (!resp.ok) {
+          throw new Error(`No se pudieron obtener documentos (${resp.status})`);
+        }
+        const data: ApiDocument[] = await resp.json();
+        const mapped: DocumentTemplate[] = data.map((doc) => ({
+          id: doc.id,
+          category: doc.factor_asociado || 'Documentos disponibles',
+          title: doc.nombre_corto,
+          description: doc.nombre_completo,
+          previewUrl: SAMPLE_PDF_DATA_URL,
+        }));
+        setTemplates(mapped);
+        setSelectedId(mapped[0]?.id ?? null);
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : 'Error desconocido al cargar documentos';
+        setError(message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDocuments();
+  }, [apiBase]);
+
+  const groupedTemplates = useMemo(() => {
+    return templates.reduce<Record<string, DocumentTemplate[]>>((acc, template) => {
+      acc[template.category] = acc[template.category] || [];
+      acc[template.category].push(template);
+      return acc;
+    }, {});
+  }, [templates]);
+
+  const selectedTemplate = templates.find((t) => t.id === selectedId) ?? null;
+  const docenteNombre =
+    [user?.primer_nombre, user?.segundo_nombre, user?.apellido_paterno, user?.apellido_materno]
+      .filter(Boolean)
+      .join(' ')
+      .trim() || 'Docente';
+
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const buildPdf = () => {
+    if (!selectedTemplate) return null;
+    const doc = new jsPDF();
+    const startX = 20;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    const titleLines = doc.splitTextToSize(selectedTemplate.description, 170);
+    let currentY = 20;
+    titleLines.forEach((line) => {
+      doc.text(line, startX, currentY);
+      currentY += 6;
+    });
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    const prefix = 'El (La) que suscribe ';
+    const startY = currentY + 8;
+    doc.text(prefix, startX, startY);
+
+    const prefixWidth = doc.getTextWidth(prefix);
+    const nameUpper = (docenteNombre || 'Docente').toUpperCase();
+    const availableWidth = 170 - prefixWidth;
+    const nameLines = doc.splitTextToSize(nameUpper, availableWidth);
+
+    currentY = startY;
+    doc.setFont('helvetica', 'bold');
+    doc.setLineWidth(0.4);
+    nameLines.forEach((line, idx) => {
+      const x = idx === 0 ? startX + prefixWidth : startX;
+      doc.text(line, x, currentY);
+      const lineWidth = doc.getTextWidth(line);
+      doc.line(x, currentY + 1, x + lineWidth, currentY + 1);
+      currentY += 6;
+    });
+
+    return doc;
+  };
+
+  useEffect(() => {
+    const doc = buildPdf();
+    if (!doc) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    const blobUrl = doc.output('bloburl');
+    const urlString = typeof blobUrl === 'string' ? blobUrl : blobUrl.toString();
+    setPreviewUrl(urlString);
+
+    return () => {
+      if (urlString) URL.revokeObjectURL(urlString);
+    };
+  }, [selectedTemplate, docenteNombre]);
+
+  const handleDownload = () => {
+    const doc = buildPdf();
+    if (!doc || !selectedTemplate) return;
+    doc.save(`${selectedTemplate.title}.pdf`);
+  };
+
+  return (
+    <div className="docgen">
+      <div className="docgen__sidebar">
+        {loading && <div className="docgen__status">Cargando documentos...</div>}
+        {error && <div className="docgen__status docgen__status--error">{error}</div>}
+        {!loading && !error && templates.length === 0 && (
+          <div className="docgen__status">No hay documentos disponibles.</div>
+        )}
+        {Object.entries(groupedTemplates).map(([category, group]) => (
+          <div key={category} className="docgen__group">
+            <h3 className="docgen__group-title">{category}</h3>
+            <ul className="docgen__list">
+              {group.map((template) => {
+                const isActive = template.id === selectedId;
+                return (
+                  <li key={template.id}>
+                    <button
+                      type="button"
+                      className={`docgen__item${isActive ? ' is-active' : ''}`}
+                      onClick={() => setSelectedId(template.id)}
+                      disabled={loading}
+                    >
+                      <span className="docgen__item-title">{template.title}</span>
+                      <span className="docgen__item-desc">{template.description}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      <div className="docgen__preview">
+        {selectedTemplate ? (
+          <>
+            <div className="docgen__preview-header">
+              <div>
+                <h2 className="docgen__preview-title">{selectedTemplate.title}</h2>
+                <p className="docgen__preview-desc">{selectedTemplate.description}</p>
+              </div>
+              <CustomButton
+                label="Descargar PDF"
+                className="custom-button--small"
+                onClick={handleDownload}
+              />
+            </div>
+            <div className="docgen__preview-frame">
+              <iframe
+                title={`Vista previa ${selectedTemplate.title}`}
+                src={previewUrl || undefined}
+                frameBorder="0"
+              />
+            </div>
+          </>
+        ) : (
+          <div className="docgen__placeholder">Selecciona un documento de la lista.</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default DocumentGenerator;

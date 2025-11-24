@@ -1,0 +1,155 @@
+.docgen {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.5rem;
+  min-height: 520px;
+}
+
+.docgen__sidebar {
+  background: #0f172a;
+  border-radius: 0.9rem;
+  padding: 1rem;
+  color: #e2e8f0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.docgen__group {
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.docgen__group-title {
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+  background: #111827;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #e5e7eb;
+}
+
+.docgen__list {
+  list-style: none;
+  padding: 0.5rem;
+  margin: 0;
+  max-height: 420px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.docgen__item {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #1f2937;
+  background: #0b1324;
+  color: #e2e8f0;
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+
+.docgen__item:hover {
+  border-color: #3b82f6;
+  background: #0f1c33;
+}
+
+.docgen__item.is-active {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25);
+}
+
+.docgen__item-title {
+  display: block;
+  font-weight: 700;
+}
+
+.docgen__item-desc {
+  display: block;
+  font-size: 0.9rem;
+  color: #cbd5e1;
+}
+
+.docgen__preview {
+  background: #0f172a;
+  border-radius: 0.9rem;
+  padding: 1rem;
+  color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.docgen__preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.docgen__preview-title {
+  margin: 0;
+}
+
+.docgen__preview-desc {
+  margin: 0.25rem 0 0 0;
+  color: #cbd5e1;
+}
+
+.docgen__preview-frame {
+  flex: 1;
+  min-height: 400px;
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #0b1324;
+}
+
+.docgen__preview-frame iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.docgen__placeholder {
+  margin: 0;
+  color: #cbd5e1;
+}
+
+.docgen__preview-text {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+  background: #0b1324;
+  color: #cbd5e1;
+}
+
+.docgen__status {
+  padding: 0.75rem 0.85rem;
+  border: 1px dashed #334155;
+  border-radius: 0.65rem;
+  color: #cbd5e1;
+  background: #0b1324;
+}
+
+.docgen__status--error {
+  border-color: #dc2626;
+  color: #fecdd3;
+  background: #2a0c12;
+}
+
+@media (max-width: 960px) {
+  .docgen {
+    grid-template-columns: 1fr;
+  }
+
+  .docgen__list {
+    max-height: none;
+  }
+}

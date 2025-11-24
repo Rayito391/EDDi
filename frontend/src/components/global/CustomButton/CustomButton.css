@@ -72,3 +72,11 @@
 .custom-button__label {
   line-height: 1;
 }
+
+.custom-button--small {
+  width: auto;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.9rem;
+  border-radius: 0.65rem;
+  margin-top: 0;
+}

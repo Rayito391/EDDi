@@ -4,6 +4,7 @@ import './App.css';
 import LoginPage from './pages/common/Login/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProfilePanel from './components/profile/ProfilePanel';
+import DocumentGenerator from './components/documents/DocumentGenerator';
 
 function AppContent() {
   const { isLoggedIn, user, role, login, logout, loading, error } = useAuth();
@@ -75,6 +76,8 @@ function AppContent() {
               lastName={fullLastName}
               onBack={() => setActiveSection('inicio')}
             />
+          ) : activeSection === 'generarDocumentos' ? (
+            <DocumentGenerator />
           ) : (
             <>
               <h2>Seccion activa</h2>
