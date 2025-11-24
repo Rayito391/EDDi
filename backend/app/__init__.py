@@ -21,8 +21,14 @@ def create_app():
     
     db.init_app(app)
 
+    # Import models to register mappings before create_all
     from app.models.personal import Personal
     from app.models.docente import Docente
+    from app.models.convocatoria import Convocatoria
+    from app.models.expediente_docente import ExpedienteDocente
+    from app.models.tutoria_docente import TutoriaDocente
+    from app.models.documento_generado import DocumentoGenerado
+    from app.models.tipo_documento import TipoDocumento
         
     from app.routes.auth import auth_blueprint
     from app.routes.documentos import documentos_blueprint

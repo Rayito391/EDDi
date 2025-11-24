@@ -5,14 +5,37 @@ import LoginPage from './pages/common/Login/LoginPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProfilePanel from './components/profile/ProfilePanel';
 import DocumentGenerator from './components/documents/DocumentGenerator';
+import MyDocuments from './components/documents/MyDocuments';
 
 function AppContent() {
   const { isLoggedIn, user, role, login, logout, loading, error } = useAuth();
   const [activeSection, setActiveSection] = useState<string | undefined>();
+  const [canGenerateDocs, setCanGenerateDocs] = useState(true);
+  const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
-    setActiveSection(undefined);
+    const defaultSection = role === 'docente' ? 'generarDocumentos' : 'inicio';
+    setActiveSection(defaultSection);
   }, [role]);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const fetchPermiso = async () => {
+      try {
+        const res = await fetch(`${apiBase}/documentos/permiso`, { credentials: 'include' });
+        if (!res.ok) {
+          setCanGenerateDocs(true);
+          return;
+        }
+        const data = await res.json();
+        const allowed = Boolean(data?.puede_generar);
+        setCanGenerateDocs(allowed);
+      } catch (_e) {
+        setCanGenerateDocs(true);
+      }
+    };
+    fetchPermiso();
+  }, [isLoggedIn, apiBase]);
 
   if (!isLoggedIn) {
     return (
@@ -77,7 +100,9 @@ function AppContent() {
               onBack={() => setActiveSection('inicio')}
             />
           ) : activeSection === 'generarDocumentos' ? (
-            <DocumentGenerator />
+            <DocumentGenerator canGenerateDocs={canGenerateDocs} />
+          ) : activeSection === 'documentos' ? (
+            <MyDocuments />
           ) : (
             <>
               <h2>Seccion activa</h2>
