@@ -31,6 +31,7 @@
 
 .mydocs__filter input {
   width: 100%;
+  box-sizing: border-box;
   background: #0b1324;
   border: 1px solid #1e293b;
   border-radius: 0.75rem;

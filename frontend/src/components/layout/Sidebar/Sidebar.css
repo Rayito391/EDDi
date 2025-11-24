@@ -7,6 +7,7 @@
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(148, 163, 184, 0.15);
+  overflow: hidden;
 }
 
 .sidebar__brand {
@@ -33,12 +34,18 @@
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar__brand-subtitle {
   margin: 0;
   font-size: 0.85rem;
   color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar__section-label {

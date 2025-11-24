@@ -7,6 +7,7 @@ import ProfilePanel from './components/profile/ProfilePanel';
 import DocumentGenerator from './components/documents/DocumentGenerator';
 import MyDocuments from './components/documents/MyDocuments';
 import CustomButton from './components/global/CustomButton/CustomButton';
+import DocentesList from './components/docentes/DocentesList';
 
 function AppContent() {
   const { isLoggedIn, user, role, login, logout, loading, error } = useAuth();
@@ -137,6 +138,8 @@ function AppContent() {
             <DocumentGenerator canGenerateDocs={canGenerateDocs} />
           ) : activeSection === 'documentos' ? (
             <MyDocuments />
+          ) : activeSection === 'docentes' && role === 'subdireccion' ? (
+            <DocentesList />
           ) : activeSection === 'quejas' ? (
             <div className="quejas-panel">
               <h2>Quejas</h2>
@@ -193,6 +196,31 @@ function AppContent() {
                         [user?.primer_nombre, user?.segundo_nombre, user?.apellido_paterno, user?.apellido_materno]
                           .filter(Boolean)
                           .join(' ') || 'Docente'
+                      }`}
+                    </p>
+                    <p className="docente-info__email">{user?.email || ''}</p>
+                  </div>
+                </div>
+              ) : role === 'subdireccion' ? (
+                <div className="quick-actions">
+                  <CustomButton
+                    variant="outline"
+                    label="Ver docentes"
+                    className="custom-button--small"
+                    onClick={() => setActiveSection('docentes')}
+                  />
+                  <CustomButton
+                    label="Mi Perfil"
+                    variant="outline"
+                    className="custom-button--small"
+                    onClick={() => setActiveSection('perfil')}
+                  />
+                  <div className="docente-info">
+                    <p className="docente-info__name">
+                      {`${
+                        [user?.primer_nombre, user?.segundo_nombre, user?.apellido_paterno, user?.apellido_materno]
+                          .filter(Boolean)
+                          .join(' ') || 'Usuario'
                       }`}
                     </p>
                     <p className="docente-info__email">{user?.email || ''}</p>
