@@ -1,7 +1,7 @@
 from app import Base, db
 
 
-class Queja(Base):
+class Queja(db.Model):
     __tablename__ = 'quejas'
     id = db.Column('quejaid', db.Integer, primary_key=True)
     docente_id = db.Column('docenteid', db.Integer, db.ForeignKey('docentes.docenteid'), nullable=False)
@@ -15,3 +15,15 @@ class Queja(Base):
     # Relationships
     docente = db.relationship('Docente', backref='quejas')
     expediente = db.relationship('ExpedienteDocente', backref='quejas')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'docente_id': self.docente_id,
+            'expediente_docente_id': self.expediente_docente_id,
+            'fecha_queja': self.fecha_queja.isoformat(),
+            'descripcion': self.descripcion,
+            'estado_queja': self.estado_queja,
+            'fecha_resolucion': self.fecha_resolucion.isoformat() if self.fecha_resolucion else None,
+            'observaciones_resolucion': self.observaciones_resolucion
+        }

@@ -2,7 +2,7 @@
 from app import Base, db
 
 
-class ExpedienteDocente(Base):
+class ExpedienteDocente(db.Model):
     __tablename__ = 'expediente_docente'
     id = db.Column('expedientedocenteid', db.Integer, primary_key=True)
     convocatoria_id = db.Column('convocatoriaid', db.Integer, db.ForeignKey('convocatorias.convocatoriaid'), nullable=False)

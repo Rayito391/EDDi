@@ -32,8 +32,10 @@ def create_app():
         
     from app.routes.auth import auth_blueprint
     from app.routes.documentos import documentos_blueprint
+    from app.routes.expedientes import expediente_blueprint
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(documentos_blueprint)
+    app.register_blueprint(expediente_blueprint)
     
     with app.app_context():
         db.create_all()
