@@ -1,30 +1,25 @@
-from datetime import datetime
+import datetime
 from flask import Blueprint, request
+
 from app.models.queja import Queja
 from app.utils.auth import docente_from_request
 from app import db
 
 
-expediente_blueprint = Blueprint('expedientes', __name__, url_prefix='/expedientes')
+quejas_blueprint = Blueprint('quejas', __name__, url_prefix='/quejas')
 
-@expediente_blueprint.get('/<int:expediente_id>/quejas')
-def get_quejas_by_expediente(expediente_id):
-    try:
-        docente = docente_from_request(request)
-        quejas: list[Queja] = Queja.query.filter_by(docente_id = docente.id, expediente_docente_id=expediente_id).order_by(Queja.fecha_queja).all()
-        return [queja.to_dict() for queja in quejas], 200
-    except ValueError as e:
-        return {"error": e.args}, 401
-    
-    
-@expediente_blueprint.post('/<int:expediente_id>/quejas')
-def create_queja(expediente_id):
+@quejas_blueprint.get('/')
+def get_quejas():
+    quejas = Queja.query.all()
+    return [queja.to_dict() for queja in quejas], 200
+
+@quejas_blueprint.post('/')
+def create_queja():
     try:
         docente = docente_from_request(request)
         data = request.get_json()
         nueva_queja = Queja(
             docente_id = docente.id,
-            expediente_docente_id = expediente_id,
             fecha_queja = datetime.now(),
             descripcion = data['descripcion'],
             estado_queja = 'Pendiente',
@@ -37,12 +32,12 @@ def create_queja(expediente_id):
     except KeyError as e:
         return {"error": f"Faltan parametros {e.args}"}, 400
     
-    
-@expediente_blueprint.get('/<int:expediente_id>/quejas/<int:queja_id>')
-def get_queja_by_id(expediente_id, queja_id):
+
+@quejas_blueprint.get('/<int:queja_id>')
+def get_queja_by_id(queja_id):
     try:
         docente = docente_from_request(request)
-        queja: Queja = Queja.query.filter_by(docente_id = docente.id, expediente_docente_id=expediente_id, id=queja_id).first()
+        queja: Queja = Queja.query.filter_by(docente_id = docente.id, id=queja_id).first()
         if not queja:
             return {"error": "Queja no encontrada"}, 404
         return queja.to_dict(), 200
@@ -50,12 +45,12 @@ def get_queja_by_id(expediente_id, queja_id):
         return {"error": e.args}, 401
     
 
-@expediente_blueprint.put('/<int:expediente_id>/quejas/<int:queja_id>/estado')
-def update_status(expediente_id, queja_id):
+@quejas_blueprint.put('/<int:queja_id>/estado')
+def update_status(queja_id):
     try:
         docente = docente_from_request(request)
         data = request.get_json()
-        queja: Queja = Queja.query.filter_by(docente_id = docente.id, expediente_docente_id=expediente_id, id=queja_id).first()
+        queja: Queja = Queja.query.filter_by(docente_id = docente.id, id=queja_id).first()
         if not queja:
             return {"error": "Queja no encontrada"}, 404
         estado_queja = data['estado_queja']
