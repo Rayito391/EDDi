@@ -21,6 +21,7 @@ def create_queja():
         nueva_queja = Queja(
             docente_id = docente.id,
             fecha_queja = datetime.now(),
+            titulo = data['titulo'],
             descripcion = data['descripcion'],
             estado_queja = 'Pendiente',
         )
