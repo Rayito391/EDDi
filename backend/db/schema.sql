@@ -113,7 +113,7 @@ Create Table Estatus_Laboral_Periodo (
 Create Table Firmas (
     FirmaId Int Not Null DEFAULT nextval('firmas_seq'),
     DocenteId Int Not Null,
-    Firma Varchar(512) Not Null -- Almacena la url de la iamgen de la firma.
+    Firma bytea Not Null -- Almacena el binario/base64 de la firma.
 );
 
 -- Tabla de Licencias de los Docentes.
@@ -323,6 +323,7 @@ Create Table Quejas (
     DocenteId Int Not Null, -- Docente que levanta la queja
     ExpedienteDocenteId Int Null, -- Expediente asociado a la queja
     FechaQueja Timestamp Not Null,
+    Titulo Varchar(100) Not Null,
     Descripcion Varchar(500) Not Null,
     EstadoQueja Varchar(50) Not Null, -- Ej: 'Pendiente', 'En Revisión', 'Resuelta', 'Improcedente'
     FechaResolucion Timestamp Null,
