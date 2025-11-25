@@ -21,13 +21,13 @@ WITH p_doc AS (
   RETURNING PersonaId
 )
 INSERT INTO Docentes (PersonaId, PuestoAcademico, Email, PasswordEmail)
-SELECT PersonaId, 'Docente',               'docente1@ejemplo.edu',    'pass_docente'       FROM p_doc
+SELECT PersonaId, 'docente',               'docente1@ejemplo.edu',    'pass_docente'       FROM p_doc
 UNION ALL
-SELECT PersonaId, 'Subdirector_Academico', 'subdireccion@ejemplo.edu','pass_subdireccion'  FROM p_sub
+SELECT PersonaId, 'subdireccion', 'subdireccion@ejemplo.edu','pass_subdireccion'  FROM p_sub
 UNION ALL
-SELECT PersonaId, 'Desarrollo_Academico',  'desarrollo@ejemplo.edu',  'pass_desarrollo'    FROM p_des
+SELECT PersonaId, 'desarrollo',  'desarrollo@ejemplo.edu',  'pass_desarrollo'    FROM p_des
 UNION ALL
-SELECT PersonaId, 'Administrativo',        'administrativo@ejemplo.edu','pass_admin'       FROM p_adm;
+SELECT PersonaId, 'administrativo',        'administrativo@ejemplo.edu','pass_admin'       FROM p_adm;
 
 -- Segundo docente (para el caso de 0 asesorados)
 WITH p_doc2 AS (
