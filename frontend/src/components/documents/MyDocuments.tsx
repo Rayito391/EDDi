@@ -22,6 +22,8 @@ const MyDocuments = () => {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
+  const [signatureFormat, setSignatureFormat] = useState<'PNG' | 'JPEG' | null>(null);
   const { user } = useAuth();
 
   const fetchDocs = async () => {
@@ -46,6 +48,42 @@ const MyDocuments = () => {
     fetchDocs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    const fetchSignature = async () => {
+      if (!user?.id) return;
+      try {
+        const resp = await fetch(`${API_BASE}/firmas/docentes/${user.id}`, {
+          credentials: 'include',
+        });
+        if (!resp.ok) {
+          setSignatureUrl(null);
+          setSignatureFormat(null);
+          return;
+        }
+        const blob = await resp.blob();
+        if (!blob || blob.size === 0) {
+          setSignatureUrl(null);
+          setSignatureFormat(null);
+          return;
+        }
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (typeof reader.result === 'string') {
+            const mime = blob.type?.toLowerCase() || '';
+            const fmt = mime.includes('jpeg') || mime.includes('jpg') ? 'JPEG' : 'PNG';
+            setSignatureFormat(fmt);
+            setSignatureUrl(reader.result);
+          }
+        };
+        reader.readAsDataURL(blob);
+      } catch (_e) {
+        setSignatureUrl(null);
+        setSignatureFormat(null);
+      }
+    };
+    fetchSignature();
+  }, [user?.id]);
 
   const filtered = useMemo(() => {
     if (!query) return docs;
@@ -124,11 +162,26 @@ const MyDocuments = () => {
       py += 2;
     });
 
+    // Firma centrada en la parte inferior
+    if (signatureUrl) {
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const sigWidth = 60;
+      const sigHeight = 24;
+      const x = (pageWidth - sigWidth) / 2;
+      const y = pageHeight - sigHeight - 18;
+      try {
+        pdf.addImage(signatureUrl, signatureFormat || 'PNG', x, y, sigWidth, sigHeight);
+      } catch (_e) {
+        // Ignorar si no se puede dibujar
+      }
+    }
+
     // Fecha abajo a la derecha
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
     const fechaStr = new Date(doc.fecha).toLocaleDateString();
-    pdf.text(fechaStr, pageWidth - 15, pageHeight - 15, { align: 'right' });
+    pdf.text(fechaStr, pageWidth - 15, pageHeight - 10, { align: 'right' });
 
     return pdf;
   };
