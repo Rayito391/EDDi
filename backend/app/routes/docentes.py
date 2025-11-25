@@ -74,6 +74,8 @@ def get_all():
     result = []
     for docente in docentes:
         item = docente.to_dict()
+        if item.get("puesto_academico"):
+            item["puesto_academico"] = item["puesto_academico"].capitalize()
         item["tutorados"] = int(tutorados_map.get(docente.id, 0))
         item["total_documentos"] = int(total_map.get(docente.id, 0))
         item["documentos_inicio"] = int(inicio_map.get(docente.id, 0))

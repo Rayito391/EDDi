@@ -8,6 +8,7 @@ import DocumentGenerator from './components/documents/DocumentGenerator';
 import MyDocuments from './components/documents/MyDocuments';
 import CustomButton from './components/global/CustomButton/CustomButton';
 import DocentesList from './components/docentes/DocentesList';
+import AsignarTutorados from './components/desarrollo/AsignarTutorados';
 
 function AppContent() {
   const { isLoggedIn, user, role, login, logout, loading, error } = useAuth();
@@ -273,6 +274,8 @@ function AppContent() {
             <MyDocuments />
           ) : activeSection === 'docentes' && role === 'subdireccion' ? (
             <DocentesList />
+          ) : activeSection === 'asignarTutorados' && role === 'desarrollo' ? (
+            <AsignarTutorados />
           ) : activeSection === 'firmas' && role === 'subdireccion' ? (
             <div className="firmas-panel">
               <h2>Firmas</h2>
@@ -415,11 +418,42 @@ function AppContent() {
                     variant="outline"
                     label="Ver docentes"
                     className="custom-button--small"
-                    onClick={() => setActiveSection('docentes')}
+                    onClick={() => handleSelectSection('docentes')}
                   />
                   <CustomButton
                     label="Mi Perfil"
                     variant="outline"
+                    className="custom-button--small"
+                    onClick={() => handleSelectSection('perfil')}
+                  />
+                  <div className="docente-info">
+                    <p className="docente-info__name">
+                      {`${
+                        [user?.primer_nombre, user?.segundo_nombre, user?.apellido_paterno, user?.apellido_materno]
+                          .filter(Boolean)
+                          .join(' ') || 'Usuario'
+                      }`}
+                    </p>
+                    <p className="docente-info__email">{user?.email || ''}</p>
+                  </div>
+                </div>
+              ) : role === 'desarrollo' ? (
+                <div className="quick-actions">
+                  <CustomButton
+                    variant="outline"
+                    label="Ir a Asignar Tutorados"
+                    className="custom-button--small"
+                    onClick={() => handleSelectSection('asignarTutorados')}
+                  />
+                  <CustomButton
+                    variant="outline"
+                    label="Ir a Asignar Asesorados"
+                    className="custom-button--small"
+                    onClick={() => handleSelectSection('asignarAsesorados')}
+                  />
+                  <CustomButton
+                    variant="outline"
+                    label="Mi Perfil"
                     className="custom-button--small"
                     onClick={() => handleSelectSection('perfil')}
                   />

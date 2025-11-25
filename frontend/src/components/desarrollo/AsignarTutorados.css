@@ -1,0 +1,98 @@
+.asignar-panel {
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 1rem;
+  color: #e2e8f0;
+}
+
+.asignar-card,
+.asignar-detail {
+  background: #0f172a;
+  border: 1px solid #1e293b;
+  border-radius: 0.85rem;
+  padding: 1rem;
+}
+
+.asignar-subtitle {
+  margin: 0 0 0.75rem 0;
+  color: #cbd5e1;
+}
+
+.asignar-label {
+  display: block;
+  margin: 0.5rem 0 0.25rem 0;
+  color: #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.asignar-select,
+.asignar-input {
+  width: 100%;
+  background: #0b1324;
+  border: 1px solid #1e293b;
+  border-radius: 0.65rem;
+  padding: 0.55rem 0.75rem;
+  color: #e2e8f0;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.asignar-select {
+  height: 44px;
+}
+
+.asignar-input {
+  height: 44px;
+}
+
+.asignar-select:focus,
+.asignar-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.35);
+}
+
+.asignar-actions {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.asignar-actions .custom-button--small {
+  width: 100%;
+}
+
+.asignar-detail h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.asignar-detail-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.asignar-placeholder {
+  margin: 0;
+  color: #94a3b8;
+}
+
+.asignar-status {
+  margin: 0.35rem 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.asignar-status--ok {
+  background: #0f3d2e;
+  color: #bbf7d0;
+}
+
+.asignar-status--error {
+  background: #2a0c12;
+  color: #fecdd3;
+}

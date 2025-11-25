@@ -34,11 +34,13 @@ def create_app():
     from app.routes.auth import auth_blueprint
     from app.routes.documentos import documentos_blueprint
     from app.routes.docentes import docentes_blueprint
+    from app.routes.tutorias import tutorias_blueprint
     from app.routes.quejas import quejas_blueprint
     from app.routes.firmas import firmas_blueprint
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(documentos_blueprint)
     app.register_blueprint(docentes_blueprint)
+    app.register_blueprint(tutorias_blueprint)
     app.register_blueprint(quejas_blueprint)
     app.register_blueprint(firmas_blueprint)
     

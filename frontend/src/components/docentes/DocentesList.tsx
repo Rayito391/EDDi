@@ -42,9 +42,7 @@ const DocentesList = () => {
         docsFactor: d.documentos_factor,
         tutorados: d.tutorados,
       }));
-      const filtered = mapped.filter((d) =>
-        (d.puesto || '').toLowerCase() === 'docente'
-      );
+      const filtered = mapped.filter((d) => (d.puesto || '').toLowerCase() === 'docente');
       setDocentes(filtered);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error desconocido';
@@ -108,12 +106,7 @@ const DocentesList = () => {
               <p className="doc-list__email">{d.email || 'Sin correo'}</p>
               {d.puesto && <p className="doc-list__meta">{d.puesto}</p>}
               <p className="doc-list__meta">Total documentos: {d.totalDocs ?? 0}</p>
-              <p className="doc-list__meta">
-                Documentos inicio: {d.docsInicio ?? 0}
-              </p>
-              <p className="doc-list__meta">
-                Documentos Factor 1: {d.docsFactor ?? 0}
-              </p>
+              <p className="doc-list__meta">Documentos inicio: {d.docsInicio ?? 0} / 14</p>
             </div>
             <div className="doc-list__tutorados">Tutorados: {d.tutorados ?? 0}</div>
           </li>
