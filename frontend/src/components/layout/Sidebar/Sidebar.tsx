@@ -40,13 +40,13 @@ const NAV_ITEMS: Record<SidebarRole, NavItem[]> = {
     { key: 'inicio', label: 'Inicio', icon: HomeIcon },
     { key: 'asignarTutorados', label: 'Asignar tutorados', icon: AddUserIcon },
     { key: 'asignarAsesorados', label: 'Asignar asesorados', icon: PeopleIcon },
-    { key: 'quejas', label: 'Revisar quejas', icon: SearchIcon },
     { key: 'perfil', label: 'Mi perfil', icon: ProfileIcon },
   ],
   administrativo: [
     { key: 'inicio', label: 'Inicio', icon: HomeIcon },
     { key: 'quejas', label: 'Revisar quejas', icon: SearchIcon },
     { key: 'perfil', label: 'Mi perfil', icon: ProfileIcon },
+    { key: 'quejas', label: 'Revisar quejas', icon: SearchIcon },
   ],
 };
 
