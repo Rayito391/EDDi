@@ -105,6 +105,16 @@
   min-height: 140px;
 }
 
+.quejas-input {
+  width: 100%;
+  background: #0b1324;
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.9rem;
+  color: #e2e8f0;
+  height: 42px;
+}
+
 .quejas-textarea::placeholder {
   color: #94a3b8;
 }

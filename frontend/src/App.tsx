@@ -13,6 +13,7 @@ function AppContent() {
   const { isLoggedIn, user, role, login, logout, loading, error } = useAuth();
   const [activeSection, setActiveSection] = useState<string | undefined>();
   const [canGenerateDocs, setCanGenerateDocs] = useState(true);
+  const [quejaTitulo, setQuejaTitulo] = useState('');
   const [quejaDesc, setQuejaDesc] = useState('');
   const [quejaMsg, setQuejaMsg] = useState<string | null>(null);
   const [quejaError, setQuejaError] = useState<string | null>(null);
@@ -61,6 +62,10 @@ function AppContent() {
       setQuejaLoading(true);
       setQuejaMsg(null);
       setQuejaError(null);
+      if (!quejaTitulo.trim()) {
+        setQuejaError('Ingrese un título');
+        return;
+      }
       if (!quejaDesc.trim()) {
         setQuejaError('Ingrese una descripción');
         return;
@@ -69,13 +74,14 @@ function AppContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ descripcion: quejaDesc.trim() }),
+        body: JSON.stringify({ titulo: quejaTitulo.trim(), descripcion: quejaDesc.trim() }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(data?.error || 'No se pudo enviar la queja');
       }
       setQuejaMsg('Queja enviada correctamente');
+      setQuejaTitulo('');
       setQuejaDesc('');
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error al enviar la queja';
@@ -109,13 +115,23 @@ function AppContent() {
 
   const roleText = roleCopy[role];
 
+  const handleSelectSection = (key: string | undefined) => {
+    setActiveSection(key);
+    // Limpia estados de queja al cambiar de pestaña
+    setQuejaTitulo('');
+    setQuejaDesc('');
+    setQuejaMsg(null);
+    setQuejaError(null);
+    setQuejaLoading(false);
+  };
+
   return (
     <div className="app-shell">
       <Sidebar
         role={role}
         userName={user?.email ?? 'Usuario'}
         activeKey={activeSection}
-        onSelect={setActiveSection}
+        onSelect={handleSelectSection}
         onLogout={logout}
       />
       <main className="app-content">
@@ -132,7 +148,7 @@ function AppContent() {
               email={user?.email}
               firstName={user?.primer_nombre}
               lastName={fullLastName}
-              onBack={() => setActiveSection('inicio')}
+              onBack={() => handleSelectSection('inicio')}
             />
           ) : activeSection === 'generarDocumentos' ? (
             <DocumentGenerator canGenerateDocs={canGenerateDocs} />
@@ -143,7 +159,14 @@ function AppContent() {
           ) : activeSection === 'quejas' ? (
             <div className="quejas-panel">
               <h2>Quejas</h2>
-              <p>Envía una descripción para solicitar revisión o aclaración.</p>
+              <p>Envía un título y una descripción para solicitar revisión o aclaración.</p>
+              <input
+                className="quejas-input"
+                placeholder="Título de la queja"
+                value={quejaTitulo}
+                onChange={(e) => setQuejaTitulo(e.target.value)}
+                autoComplete="off"
+              />
               <textarea
                 className="quejas-textarea"
                 placeholder="Describe tu queja..."
@@ -170,25 +193,25 @@ function AppContent() {
                     variant="outline"
                     label="Ir a Generar Documentos"
                     className="custom-button--small"
-                    onClick={() => setActiveSection('generarDocumentos')}
+                    onClick={() => handleSelectSection('generarDocumentos')}
                   />
                   <CustomButton
                     label="Mis Documentos"
                     variant="outline"
                     className="custom-button--small"
-                    onClick={() => setActiveSection('documentos')}
+                    onClick={() => handleSelectSection('documentos')}
                   />
                   <CustomButton
                     label="Mi Perfil"
                     variant="outline"
                     className="custom-button--small"
-                    onClick={() => setActiveSection('perfil')}
+                    onClick={() => handleSelectSection('perfil')}
                   />
                   <CustomButton
                     label="Quejas"
                     variant="outline"
                     className="custom-button--small"
-                    onClick={() => setActiveSection('quejas')}
+                    onClick={() => handleSelectSection('quejas')}
                   />
                   <div className="docente-info">
                     <p className="docente-info__name">
@@ -213,7 +236,7 @@ function AppContent() {
                     label="Mi Perfil"
                     variant="outline"
                     className="custom-button--small"
-                    onClick={() => setActiveSection('perfil')}
+                    onClick={() => handleSelectSection('perfil')}
                   />
                   <div className="docente-info">
                     <p className="docente-info__name">

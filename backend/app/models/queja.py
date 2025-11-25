@@ -23,6 +23,7 @@ class Queja(db.Model):
             'docente_id': self.docente_id,
             'expediente_docente_id': self.expediente_docente_id,
             'fecha_queja': self.fecha_queja.isoformat(),
+            'titulo': self.titulo,
             'descripcion': self.descripcion,
             'estado_queja': self.estado_queja,
             'fecha_resolucion': self.fecha_resolucion.isoformat() if self.fecha_resolucion else None,
