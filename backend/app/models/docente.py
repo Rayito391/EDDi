@@ -22,3 +22,9 @@ class Docente(db.Model):
             "apellido_paterno": self.personal.apellido_paterno if self.personal else None,
             "apellido_materno": self.personal.apellido_materno if self.personal else None,
         }
+
+    def to_dict_with_personal(self):
+        personal_dict = self.personal.to_dict()
+        docente_dict = self.to_dict()
+        docente_dict["persona"] = personal_dict
+        return docente_dict

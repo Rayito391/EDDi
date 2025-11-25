@@ -43,7 +43,7 @@ def get_current_user():
     try:
         docente = docente_from_request(request)
 
-        return jsonify(docente.to_dict()), 200
+        return jsonify(docente.to_dict_with_personal()), 200
     except ValueError as e:
         return {"error": e.args}, 404
     
