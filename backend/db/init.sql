@@ -56,3 +56,20 @@ WITH d1 AS (SELECT DocenteId FROM Docentes WHERE Email = 'docente1@ejemplo.edu')
 INSERT INTO Tutorias_Docentes (DocenteId, Semestre, NumEstudiantes, FolioConstancia, ImpactoEvaluacion, VoBo_SubAcademica)
 SELECT d1.DocenteId, '2025-1', 10, 'FOL-TUT-2025-001', 'Seguimiento regular', 'SI' FROM d1;
 -- El segundo docente queda con 0 asesorados (no insertamos tutorías)
+
+-- 14 tipos de documentos
+INSERT INTO Tipos_Documentos (TipoDocumentoID, NombreCorto, NombreCompleto, FactorAsociado, AreaResponsable) VALUES
+(nextval('tipos_doc_seq'), '01', 'Constancia de Recursos Humanos sobre nombramiento, asistencia y sanciones', 'F1', 'Recursos Humanos'),
+(nextval('tipos_doc_seq'), '02', 'Talón de pago (quincena 07 del 2025, sin DT o I8)', 'F1', 'Recursos Humanos'),
+(nextval('tipos_doc_seq'), '03', 'Horarios de labores 2024 y 2025', 'F1', 'Académica'),
+(nextval('tipos_doc_seq'), '04', 'Carta de exclusividad laboral (formato oficial)', 'F1', 'Recursos Humanos'),
+(nextval('tipos_doc_seq'), '05', 'Proyecto de investigación vigente con dictamen y recomendación institucional', 'F1', 'Académica'),
+(nextval('tipos_doc_seq'), '06', 'Constancia de CVU-TecNM actualizado', 'F1', 'Académica'),
+(nextval('tipos_doc_seq'), '07', 'Constancia de asignaturas impartidas y estudiantes atendidos', 'F1', 'Académica'),
+(nextval('tipos_doc_seq'), '08', 'Oficio de autorización de período sabático o beca comisión', 'F1', 'Recursos Humanos'),
+(nextval('tipos_doc_seq'), '09', 'Licencia por gravidez (si aplica)', 'F1', 'Recursos Humanos'),
+(nextval('tipos_doc_seq'), '10', 'Cédula profesional o acta de examen de grado', 'F1', 'Recursos Humanos'),
+(nextval('tipos_doc_seq'), '11', 'Formato de liberación de actividades docentes (dos semestres)', 'F1', 'Académica'),
+(nextval('tipos_doc_seq'), '12', 'Carta de liberación de actividades académicas (Anexo XXXVII)', 'F1', 'Académica'),
+(nextval('tipos_doc_seq'), '13', 'Evaluaciones departamentales y autoevaluación (licenciatura o posgrado)', 'F1', 'Académica'),
+(nextval('tipos_doc_seq'), '14', 'Evaluaciones del desempeño frente a grupo (mínimo 60% del estudiantado)', 'F1', 'Académica');
