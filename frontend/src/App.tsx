@@ -18,12 +18,48 @@ function AppContent() {
   const [quejaMsg, setQuejaMsg] = useState<string | null>(null);
   const [quejaError, setQuejaError] = useState<string | null>(null);
   const [quejaLoading, setQuejaLoading] = useState(false);
+  const [docentesList, setDocentesList] = useState<any[]>([]);
+  const [docentesLoading, setDocentesLoading] = useState(false);
+  const [docentesError, setDocentesError] = useState<string | null>(null);
+  const [selectedDocenteId, setSelectedDocenteId] = useState<number | null>(null);
+  const [signatureFile, setSignatureFile] = useState<File | null>(null);
+  const [signatureFileName, setSignatureFileName] = useState<string | null>(null);
+  const [signaturePreview, setSignaturePreview] = useState<string | null>(null);
+  const [signatureMsg, setSignatureMsg] = useState<string | null>(null);
+  const [signatureError, setSignatureError] = useState<string | null>(null);
+  const [signatureLoading, setSignatureLoading] = useState(false);
+  const selectedDocente = selectedDocenteId
+    ? docentesList.find((d) => d.id === selectedDocenteId)
+    : null;
   const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   useEffect(() => {
     const defaultSection = role === 'docente' ? 'generarDocumentos' : 'inicio';
     setActiveSection(defaultSection);
   }, [role]);
+
+  useEffect(() => {
+    const fetchDocentes = async () => {
+      try {
+        setDocentesLoading(true);
+        setDocentesError(null);
+        const res = await fetch(`${apiBase}/docentes/?puesto_academico=Docente`, { credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data?.error || 'No se pudo cargar la lista de docentes');
+        }
+        setDocentesList(data?.docentes || []);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Error al cargar docentes';
+        setDocentesError(msg);
+      } finally {
+        setDocentesLoading(false);
+      }
+    };
+    if (role === 'subdireccion' && activeSection === 'firmas') {
+      fetchDocentes();
+    }
+  }, [role, activeSection, apiBase]);
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -43,6 +79,45 @@ function AppContent() {
     };
     fetchPermiso();
   }, [isLoggedIn, apiBase]);
+
+  // Autoclear mensajes de quejas y firmas
+  useEffect(() => {
+    if (quejaMsg || quejaError) {
+      const t = setTimeout(() => {
+        setQuejaMsg(null);
+        setQuejaError(null);
+        setQuejaTitulo('');
+        setQuejaDesc('');
+      }, 3000);
+      return () => clearTimeout(t);
+    }
+  }, [quejaMsg, quejaError]);
+
+  useEffect(() => {
+    if (signatureMsg || signatureError) {
+      const t = setTimeout(() => {
+        setSignatureMsg(null);
+        setSignatureError(null);
+        setSignatureFile(null);
+        setSignatureFileName(null);
+        setSignaturePreview(null);
+      }, 3000);
+      return () => clearTimeout(t);
+    }
+  }, [signatureMsg, signatureError]);
+
+  // Crear/desechar preview de firma
+  useEffect(() => {
+    if (!signatureFile) {
+      setSignaturePreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(signatureFile);
+    setSignaturePreview(url);
+    return () => {
+      URL.revokeObjectURL(url);
+    };
+  }, [signatureFile]);
 
   if (!isLoggedIn) {
     return (
@@ -115,6 +190,41 @@ function AppContent() {
 
   const roleText = roleCopy[role];
 
+  const handleSignatureUpload = async () => {
+    try {
+      setSignatureLoading(true);
+      setSignatureMsg(null);
+      setSignatureError(null);
+      if (!selectedDocenteId) {
+        setSignatureError('Selecciona un docente.');
+        return;
+      }
+      if (!signatureFile) {
+        setSignatureError('Selecciona un archivo de firma (png/jpg).');
+        return;
+      }
+      const res = await fetch(`${apiBase}/firmas/docentes/${selectedDocenteId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: {
+          'Content-Type': signatureFile.type || 'application/octet-stream',
+        },
+        body: signatureFile,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || 'No se pudo subir la firma');
+      }
+      setSignatureMsg('Firma subida correctamente');
+      setSignatureError(null);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Error al subir la firma';
+      setSignatureError(msg);
+    } finally {
+      setSignatureLoading(false);
+    }
+  };
+
   const handleSelectSection = (key: string | undefined) => {
     setActiveSection(key);
     // Limpia estados de queja al cambiar de pestaña
@@ -123,6 +233,13 @@ function AppContent() {
     setQuejaMsg(null);
     setQuejaError(null);
     setQuejaLoading(false);
+    // Limpia selección de firmas
+    setSelectedDocenteId(null);
+    setSignatureFile(null);
+    setSignatureFileName(null);
+    setSignatureMsg(null);
+    setSignatureError(null);
+    setSignatureLoading(false);
   };
 
   return (
@@ -156,6 +273,74 @@ function AppContent() {
             <MyDocuments />
           ) : activeSection === 'docentes' && role === 'subdireccion' ? (
             <DocentesList />
+          ) : activeSection === 'firmas' && role === 'subdireccion' ? (
+            <div className="firmas-panel">
+              <h2>Firmas</h2>
+              <p>Selecciona un docente y adjunta una imagen de firma desde tu equipo.</p>
+              <div className="firmas-layout">
+                <div className="firmas-list">
+                  {docentesLoading && <p>Cargando docentes...</p>}
+                  {docentesError && <p className="quejas-status quejas-status--error">{docentesError}</p>}
+                  {!docentesLoading && !docentesError && (
+                    <ul>
+                      {docentesList.map((d) => (
+                        <li key={d.id}>
+                          <button
+                            type="button"
+                            className={`sidebar__nav-btn${selectedDocenteId === d.id ? ' is-active' : ''}`}
+                            onClick={() => setSelectedDocenteId(d.id)}
+                          >
+                            <span>{`${[d.primer_nombre, d.segundo_nombre, d.apellido_paterno, d.apellido_materno].filter(Boolean).join(' ') || d.email || 'Docente'}`}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+                <div className="firmas-upload">
+                  {selectedDocente ? (
+                    <>
+                      <p className="firmas-selected">
+                        Docente seleccionado:{' '}
+                        {[selectedDocente.primer_nombre, selectedDocente.segundo_nombre, selectedDocente.apellido_paterno, selectedDocente.apellido_materno]
+                          .filter(Boolean)
+                          .join(' ') || selectedDocente.email}
+                      </p>
+                      <label className="firmas-dropzone">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            setSignatureFile(file);
+                            setSignatureFileName(file?.name || null);
+                            setSignatureMsg(null);
+                            setSignatureError(null);
+                          }}
+                          className="firmas-file-input"
+                        />
+                        <span>{signatureFileName ? `Archivo: ${signatureFileName}` : 'Cargar firma (png/jpg)'}</span>
+                      </label>
+                      {signaturePreview && (
+                        <div className="firmas-preview">
+                          <img src={signaturePreview} alt="Vista previa de firma" />
+                        </div>
+                      )}
+                      <CustomButton
+                        label={signatureLoading ? 'Subiendo...' : 'Subir firma'}
+                        className="custom-button--small"
+                        onClick={handleSignatureUpload}
+                        disabled={signatureLoading}
+                      />
+                      {signatureMsg && <p className="quejas-status quejas-status--ok">{signatureMsg}</p>}
+                      {signatureError && <p className="quejas-status quejas-status--error">{signatureError}</p>}
+                    </>
+                  ) : (
+                    <p>Selecciona un docente para habilitar la carga de firma.</p>
+                  )}
+                </div>
+              </div>
+            </div>
           ) : activeSection === 'quejas' ? (
             <div className="quejas-panel">
               <h2>Quejas</h2>

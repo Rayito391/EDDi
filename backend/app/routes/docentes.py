@@ -14,7 +14,7 @@ docentes_blueprint = Blueprint('docentes', __name__, url_prefix='/docentes')
 def get_all():
     puesto_academico = request.args.get('puesto_academico')
     docentes = (
-        Docente.query.filter_by(puesto_academico=puesto_academico).all()
+        Docente.query.filter(func.lower(Docente.puesto_academico) == func.lower(puesto_academico)).all()
         if puesto_academico
         else Docente.query.all()
     )

@@ -34,7 +34,10 @@ const DocumentGenerator = ({ canGenerateDocs = true }: DocumentGeneratorProps) =
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [signatureUrl, setSignatureUrl] = useState<string | null>(null);
+  const [signatureFormat, setSignatureFormat] = useState<'PNG' | 'JPEG' | null>(null);
   const apiBase = 'http://localhost:5000';
   const { user } = useAuth();
 
@@ -68,6 +71,49 @@ const DocumentGenerator = ({ canGenerateDocs = true }: DocumentGeneratorProps) =
 
     fetchDocuments();
   }, [apiBase]);
+
+  useEffect(() => {
+    if (successMsg) {
+      const t = setTimeout(() => setSuccessMsg(null), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [successMsg]);
+
+  useEffect(() => {
+    const fetchSignature = async () => {
+      if (!user?.id) return;
+      try {
+        const resp = await fetch(`${apiBase}/firmas/docentes/${user.id}`, {
+          credentials: 'include',
+        });
+        if (!resp.ok) {
+          setSignatureUrl(null);
+          setSignatureFormat(null);
+          return;
+        }
+        const blob = await resp.blob();
+        if (!blob || blob.size === 0) {
+          setSignatureUrl(null);
+          setSignatureFormat(null);
+          return;
+        }
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (typeof reader.result === 'string') {
+            const mime = blob.type?.toLowerCase() || '';
+            const fmt = mime.includes('jpeg') || mime.includes('jpg') ? 'JPEG' : 'PNG';
+            setSignatureFormat(fmt);
+            setSignatureUrl(reader.result);
+          }
+        };
+        reader.readAsDataURL(blob);
+      } catch (_e) {
+        setSignatureUrl(null);
+        setSignatureFormat(null);
+      }
+    };
+    fetchSignature();
+  }, [apiBase, user?.id]);
 
   const groupedTemplates = useMemo(() => {
     return templates.reduce<Record<string, DocumentTemplate[]>>((acc, template) => {
@@ -150,6 +196,21 @@ const DocumentGenerator = ({ canGenerateDocs = true }: DocumentGeneratorProps) =
       py += 2;
     });
 
+    // Firma centrada en la parte inferior si existe
+    if (signatureUrl) {
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const sigWidth = 60;
+      const sigHeight = 24;
+      const x = (pageWidth - sigWidth) / 2;
+      const y = pageHeight - sigHeight - 12;
+      try {
+        doc.addImage(signatureUrl, signatureFormat || 'PNG', x, y, sigWidth, sigHeight);
+      } catch (_e) {
+        // Ignorar errores de dibujo de imagen
+      }
+    }
+
     return doc;
   };
 
@@ -189,6 +250,7 @@ const DocumentGenerator = ({ canGenerateDocs = true }: DocumentGeneratorProps) =
     try {
       setSaving(true);
       setError(null);
+      setSuccessMsg(null);
       const res = await fetch(`${apiBase}/documentos/generar`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -199,6 +261,7 @@ const DocumentGenerator = ({ canGenerateDocs = true }: DocumentGeneratorProps) =
         const data = await res.json().catch(() => ({}));
         throw new Error(data?.error || 'No se pudo generar el documento');
       }
+      setSuccessMsg('Documento generado correctamente');
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error desconocido al generar';
       setError(msg);
@@ -225,6 +288,7 @@ const DocumentGenerator = ({ canGenerateDocs = true }: DocumentGeneratorProps) =
           <div className="docgen__sidebar">
             {loading && <div className="docgen__status">Cargando documentos...</div>}
             {error && <div className="docgen__status docgen__status--error">{error}</div>}
+            {successMsg && <div className="docgen__status docgen__status--ok">{successMsg}</div>}
             {!loading && !error && templates.length === 0 && (
               <div className="docgen__status">No hay documentos disponibles.</div>
             )}

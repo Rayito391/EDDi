@@ -148,6 +148,12 @@
   background: #2a0c12;
 }
 
+.docgen__status--ok {
+  border-color: #16a34a;
+  color: #bbf7d0;
+  background: #0f3d2e;
+}
+
 .docgen__alert {
   display: grid;
   grid-template-columns: 32px 1fr;
