@@ -25,6 +25,18 @@ def create_app():
     from app.models.personal import Personal
     from app.models.docente import Docente
     from app.models.convocatoria import Convocatoria
+    from app.models.materia import Materia
+    from app.models.materia_docente import MateriaDocente
+    from app.models.horario_docente import HorarioDocente
+    from app.models.estatus_laboral_periodo import EstatusLaboralPeriodo
+    from app.models.proyecto_investigacion import ProyectoInvestigacion
+    from app.models.proyecto_docente import ProyectoDocente
+    from app.models.cvu_control_docente import CVUControlDocente
+    from app.models.licencia_docente import LicenciaDocente
+    from app.models.grado_estudio_docente import GradoEstudioDocente
+    from app.models.liberacion_docente import LiberacionDocente
+    from app.models.evaluacion_docente import EvaluacionDocente
+    from app.models.sinodalia_docente import SinodaliaDocente
     from app.models.expediente_docente import ExpedienteDocente
     from app.models.tutoria_docente import TutoriaDocente
     from app.models.documento_generado import DocumentoGenerado
@@ -35,12 +47,14 @@ def create_app():
     from app.routes.documentos import documentos_blueprint
     from app.routes.docentes import docentes_blueprint
     from app.routes.tutorias import tutorias_blueprint
+    from app.routes.asesorados import asesorados_blueprint
     from app.routes.quejas import quejas_blueprint
     from app.routes.firmas import firmas_blueprint
     app.register_blueprint(auth_blueprint)
     app.register_blueprint(documentos_blueprint)
     app.register_blueprint(docentes_blueprint)
     app.register_blueprint(tutorias_blueprint)
+    app.register_blueprint(asesorados_blueprint)
     app.register_blueprint(quejas_blueprint)
     app.register_blueprint(firmas_blueprint)
     

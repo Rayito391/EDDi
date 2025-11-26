@@ -140,6 +140,78 @@
   color: #fecdd3;
 }
 
+.quejas-list {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #1e293b;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.quejas-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quejas-list__pill {
+  background: #1d4ed8;
+  color: #e2e8f0;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.quejas-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quejas-list__item {
+  border: 1px solid #1e293b;
+  border-radius: 0.75rem;
+  padding: 0.65rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.quejas-list__title {
+  margin: 0 0 0.15rem 0;
+  font-weight: 700;
+}
+
+.quejas-list__desc {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.quejas-list__obs {
+  margin: 0.25rem 0 0 0;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+.quejas-list__status {
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-weight: 700;
+  text-transform: capitalize;
+  font-size: 0.9rem;
+}
+
+.quejas-list__empty {
+  text-align: center;
+  color: #94a3b8;
+}
+
 .firmas-panel {
   display: flex;
   flex-direction: column;

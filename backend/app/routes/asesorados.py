@@ -6,15 +6,16 @@ from app.models.tutoria_docente import TutoriaDocente
 from app.models.docente import Docente
 from app.utils.auth import docente_from_request
 
-tutorias_blueprint = Blueprint('tutorias', __name__, url_prefix='/tutorias')
+asesorados_blueprint = Blueprint('asesorados', __name__, url_prefix='/asesorados')
 
 
-@tutorias_blueprint.put('/docentes/<int:docente_id>')
-def asignar_tutorados(docente_id: int):
+@asesorados_blueprint.put('/docentes/<int:docente_id>')
+def asignar_asesorados(docente_id: int):
     """
-    Actualiza o crea un registro de tutorías para un docente con el número de estudiantes.
-    Espera JSON: { "num_estudiantes": int, "semestre": "YYYY-X" (opcional) }
-    Solo usuarios con puesto 'desarrollo' pueden asignar a otros; el propio docente puede actualizarse a sí mismo.
+    Actualiza o crea un registro para asesorados (reuse de tutorias_docentes).
+    Acepta JSON: { "num_asesorados": int, "semestre": "YYYY-X" (opcional) }
+    Si no envías semestre, se usará el último registro del docente o el mes actual.
+    Permisos: el propio docente o puesto 'desarrollo'.
     """
     try:
         solicitante = docente_from_request(request)
@@ -22,20 +23,20 @@ def asignar_tutorados(docente_id: int):
         return {"error": e.args}, 401
 
     data = request.get_json(silent=True) or {}
-    if "num_estudiantes" not in data:
-        return {"error": "Falta num_estudiantes"}, 400
+    if "num_asesorados" not in data and "num_estudiantes" not in data:
+        return {"error": "Falta num_asesorados"}, 400
 
     try:
-        num_estudiantes = int(data.get("num_estudiantes", 0))
+        num_asesorados = int(data.get("num_asesorados", data.get("num_estudiantes", 0)))
     except (TypeError, ValueError):
-        return {"error": "num_estudiantes debe ser entero"}, 400
+        return {"error": "num_asesorados debe ser entero"}, 400
 
-    if num_estudiantes < 0:
-        return {"error": "num_estudiantes no puede ser negativo"}, 400
+    if num_asesorados < 0:
+        return {"error": "num_asesorados no puede ser negativo"}, 400
 
     semestre_payload = data.get("semestre")
 
-    # Permisos: el propio docente o alguien de desarrollo puede modificar
+    # Permisos
     if solicitante.id != docente_id and (solicitante.puesto_academico or "").lower() != "desarrollo":
         return {"error": "No autorizado"}, 403
 
@@ -45,7 +46,7 @@ def asignar_tutorados(docente_id: int):
 
     tutoria = None
     semestre = None
-    tipo = "tutorado"
+    tipo = "asesorado"
 
     if semestre_payload:
         semestre = semestre_payload
@@ -55,7 +56,6 @@ def asignar_tutorados(docente_id: int):
             .first()
         )
     else:
-        # Sin semestre explícito, intenta usar el último registro de tutorados
         tutoria = (
             db.session.query(TutoriaDocente)
             .filter_by(docente_id=docente_target.id, tipo_registro=tipo)
@@ -65,13 +65,13 @@ def asignar_tutorados(docente_id: int):
         semestre = tutoria.semestre if tutoria else datetime.now().strftime("%Y-%m")
 
     if tutoria:
-        tutoria.num_estudiantes = (tutoria.num_estudiantes or 0) + num_estudiantes
+        tutoria.num_estudiantes = (tutoria.num_estudiantes or 0) + num_asesorados
     else:
         tutoria = TutoriaDocente(
             docente_id=docente_target.id,
             semestre=semestre,
             tipo_registro=tipo,
-            num_estudiantes=num_estudiantes,
+            num_estudiantes=num_asesorados,
             folio_constancia=None,
             impacto_evaluacion=None,
             vobo_sub_academica="SI",
@@ -83,5 +83,5 @@ def asignar_tutorados(docente_id: int):
         "id": tutoria.id,
         "docente_id": tutoria.docente_id,
         "semestre": tutoria.semestre,
-        "num_estudiantes": tutoria.num_estudiantes,
+        "num_asesorados": tutoria.num_estudiantes,
     }, 200

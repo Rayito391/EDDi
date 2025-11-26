@@ -18,7 +18,8 @@ CREATE SEQUENCE actividades_ded_seq START 1;
 CREATE SEQUENCE tutorias_seq START 1;
 CREATE SEQUENCE material_did_seq START 1;
 CREATE SEQUENCE cursos_doc_seq START 1;
-CREATE SEQUENCE sinodalias_seq START 1;
+CREATE SEQUENCE titulaciones_seq START 1;
+CREATE SEQUENCE asesorias_proj_seq START 1;
 CREATE SEQUENCE comisiones_seq START 1;
 CREATE SEQUENCE programas_seq START 1;
 CREATE SEQUENCE programas_doc_seq START 1;
@@ -216,10 +217,12 @@ Create Table Actividades_Dedicacion_Docente (
 );
 
 -- Tabla de Acciones Tutoriales. (Factor 1.1.5)
+-- Uso exclusivo para PIT con conteo de estudiantes y folio de constancia de cumplimiento.
 Create Table Tutorias_Docentes (
     TutoriaDocenteId Int Not Null DEFAULT nextval('tutorias_seq'),
     DocenteId Int Not Null,
     Semestre Varchar(20) Not Null,
+    TipoRegistro Varchar(20) Not Null DEFAULT 'tutorado', -- tutorado / asesorado
     NumEstudiantes Int Not Null,
     FolioConstancia Varchar(50),
     ImpactoEvaluacion Varchar(255),
@@ -251,15 +254,16 @@ Create Table Cursos_Docentes (
     InstitucionConstancia Varchar(100) Not Null
 );
 
--- Tabla de Sinodalias de Titulación. (Factor 1.3)
-Create Table Sinodalias_Titulaciones_Docentes (
-    SinodaliaTitulacionDocenteId Int Not Null DEFAULT nextval('sinodalias_seq'),
+-- Tabla de Titulaciones (Actividad 1.3) con roles académicos explícitos.
+Create Table Titulaciones_Docentes (
+    TitulacionDocenteId Int Not Null DEFAULT nextval('titulaciones_seq'),
     DocenteID Int Not Null,
-    NivelGrado Varchar(50) Not Null,
-    TipoParticipacion Varchar(50) Not Null,
+    NivelGrado Varchar(50) Not Null, -- Licenciatura, Maestría, Doctorado
+    RolAcademico Varchar(50) Not Null, -- Director, Codirector, Sinodal
+    TipoTrabajo Varchar(50) Not Null, -- Tesis, Tesina, Proyecto Integrador, etc.
     FolioActa Varchar(50),
     FechaExamen Date,
-    EsSinodaliaExterna Varchar(2)
+    EsExterno Varchar(2) -- Si la participación fue externa
 );
 
 -- Tabla de Comisiones y Oficios. (Factor 1.4)
@@ -272,6 +276,21 @@ Create Table Comisiones_Oficios_Docentes (
     FolioConstanciaCumplimiento Varchar(50),
     VoBo_SubAcademica Varchar(2),
     NivelParticipacion Varchar(50)
+);
+
+-- Tabla para Asesorías de Proyectos de Estudiantes (Residencias, Educación Dual, Concursos).
+Create Table Asesorias_Proyectos_Estudiantes (
+    AsesoriaProyectoId Int Not Null DEFAULT nextval('asesorias_proj_seq'),
+    DocenteId Int Not Null,
+    TipoAsesoria Varchar(50) Not Null, -- Residencia, Concurso, Educacion_Dual, etc.
+    NombreProyecto Varchar(255) Not Null,
+    EmpresaInstitucion Varchar(255),
+    RolAcademico Varchar(50) Not Null, -- Asesor, Coasesor, Director, Jurado
+    AlumnoNombre Varchar(255),
+    Periodo Varchar(20),
+    FechaInicio Date,
+    FechaFin Date,
+    FolioConstancia Varchar(50)
 );
 
 -- Tabla de Programas Académicos. (Factor 1.1.6 y 1.4.8)
@@ -367,8 +386,9 @@ ALTER TABLE Actividades_Dedicacion_Docente ADD CONSTRAINT PK_Actividades_Dedicac
 ALTER TABLE Tutorias_Docentes ADD CONSTRAINT PK_Tutorias_Docentes PRIMARY KEY (TutoriaDocenteId);
 ALTER TABLE Material_Didactico_Docente ADD CONSTRAINT PK_Material_Didactico_Docente PRIMARY KEY (MaterialDidacticoDocenteId);
 ALTER TABLE Cursos_Docentes ADD CONSTRAINT PK_Cursos_Docentes PRIMARY KEY (CursoDocenteId);
-ALTER TABLE Sinodalias_Titulaciones_Docentes ADD CONSTRAINT PK_Sinodalias_Titulaciones_Docentes PRIMARY KEY (SinodaliaTitulacionDocenteId);
+ALTER TABLE Titulaciones_Docentes ADD CONSTRAINT PK_Titulaciones_Docentes PRIMARY KEY (TitulacionDocenteId);
 ALTER TABLE Comisiones_Oficios_Docentes ADD CONSTRAINT PK_Comisiones_Oficios_Docentes PRIMARY KEY (ComisionOficioDocenteId);
+ALTER TABLE Asesorias_Proyectos_Estudiantes ADD CONSTRAINT PK_Asesorias_Proyectos_Estudiantes PRIMARY KEY (AsesoriaProyectoId);
 ALTER TABLE Programas_Academicos ADD CONSTRAINT PK_Programas_Academicos PRIMARY KEY (ProgramaId);
 ALTER TABLE Programas_Docentes ADD CONSTRAINT PK_Programas_Docentes PRIMARY KEY (ProgramaDocenteId);
 ALTER TABLE Expediente_Docente ADD CONSTRAINT PK_Expediente_Docente PRIMARY KEY (ExpedienteDocenteId);
@@ -401,8 +421,9 @@ ALTER TABLE Actividades_Dedicacion_Docente ADD CONSTRAINT FK_Actividades_Dedicac
 ALTER TABLE Tutorias_Docentes ADD CONSTRAINT FK_Tutorias_Docentes_DocenteId FOREIGN KEY (DocenteId) REFERENCES Docentes(DocenteId);
 ALTER TABLE Material_Didactico_Docente ADD CONSTRAINT FK_Material_Didactico_Docente_DocenteId FOREIGN KEY (DocenteID) REFERENCES Docentes(DocenteId);
 ALTER TABLE Cursos_Docentes ADD CONSTRAINT FK_Cursos_Docentes_DocenteId FOREIGN KEY (DocenteID) REFERENCES Docentes(DocenteId);
-ALTER TABLE Sinodalias_Titulaciones_Docentes ADD CONSTRAINT FK_Sinodalias_Titulaciones_Docentes_DocenteID FOREIGN KEY (DocenteID) REFERENCES Docentes(DocenteId);
+ALTER TABLE Titulaciones_Docentes ADD CONSTRAINT FK_Titulaciones_Docentes_DocenteID FOREIGN KEY (DocenteID) REFERENCES Docentes(DocenteId);
 ALTER TABLE Comisiones_Oficios_Docentes ADD CONSTRAINT FK_Comisiones_Oficios_Docentes_DocenteID FOREIGN KEY (DocenteID) REFERENCES Docentes(DocenteId);
+ALTER TABLE Asesorias_Proyectos_Estudiantes ADD CONSTRAINT FK_Asesorias_Proyectos_Estudiantes_DocenteId FOREIGN KEY (DocenteId) REFERENCES Docentes(DocenteId);
 ALTER TABLE Programas_Docentes ADD CONSTRAINT FK_Programas_Docentes_DocenteID FOREIGN KEY (DocenteID) REFERENCES Docentes(DocenteId);
 
 -- Relaciones Inter-tablas

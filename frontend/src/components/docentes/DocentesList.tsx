@@ -106,7 +106,7 @@ const DocentesList = () => {
               <p className="doc-list__email">{d.email || 'Sin correo'}</p>
               {d.puesto && <p className="doc-list__meta">{d.puesto}</p>}
               <p className="doc-list__meta">Total documentos: {d.totalDocs ?? 0}</p>
-              <p className="doc-list__meta">Documentos inicio: {d.docsInicio ?? 0} / 14</p>
+              <p className="doc-list__meta">Documentos inicio: {d.docsInicio ?? 0}</p>
             </div>
             <div className="doc-list__tutorados">Tutorados: {d.tutorados ?? 0}</div>
           </li>

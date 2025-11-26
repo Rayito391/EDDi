@@ -1,0 +1,271 @@
+.quejas-admin {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 1rem;
+}
+
+.quejas-admin__list,
+.quejas-admin__detail {
+  background: #0b1324;
+  border: 1px solid #1e293b;
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.quejas-admin__list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.quejas-admin__helper {
+  margin: 0.15rem 0 0 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.quejas-admin__pill {
+  background: #1d4ed8;
+  color: #e2e8f0;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+}
+
+.quejas-admin__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.quejas-admin__item {
+  width: 100%;
+  text-align: left;
+  background: #0d172a;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.quejas-admin__item:hover {
+  border-color: #334155;
+  background: #101c30;
+}
+
+.quejas-admin__item.is-active {
+  border-color: #60a5fa;
+  background: #0f1b30;
+}
+
+.quejas-admin__item-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.quejas-admin__item-title {
+  margin: 0 0 0.25rem 0;
+  font-weight: 700;
+}
+
+.quejas-admin__item-author {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.quejas-admin__item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-end;
+}
+
+.quejas-admin__status {
+  padding: 0.15rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.quejas-admin__status--pendiente {
+  background: rgba(250, 204, 21, 0.12);
+  color: #facc15;
+}
+
+.quejas-admin__status--en-proceso {
+  background: rgba(59, 130, 246, 0.12);
+  color: #60a5fa;
+}
+
+.quejas-admin__status--resuelta {
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+}
+
+.quejas-admin__date {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.quejas-admin__item-desc {
+  margin: 0.5rem 0 0 0;
+  color: #cbd5e1;
+  font-size: 0.95rem;
+}
+
+.quejas-admin__empty {
+  padding: 0.75rem;
+  color: #94a3b8;
+  text-align: center;
+  border: 1px dashed #1e293b;
+  border-radius: 0.75rem;
+}
+
+.quejas-admin__detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 320px;
+}
+
+.quejas-admin__detail-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.quejas-admin__detail-title {
+  margin: 0.25rem 0 0 0;
+}
+
+.quejas-admin__detail-date {
+  margin: 0.25rem 0 0 0;
+  color: #94a3b8;
+}
+
+.quejas-admin__detail-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.quejas-admin__detail-status select {
+  background: #0b1324;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  min-width: 160px;
+}
+
+.quejas-admin__detail-status textarea {
+  background: #0b1324;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  resize: vertical;
+}
+
+.quejas-admin__save {
+  background: #2563eb;
+  color: #e2e8f0;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  cursor: pointer;
+  font-weight: 700;
+  margin-top: 0.25rem;
+  transition: background 0.2s ease;
+}
+
+.quejas-admin__save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.quejas-admin__save:not(:disabled):hover {
+  background: #1d4ed8;
+}
+
+.quejas-admin__detail-section {
+  border-top: 1px solid #1f2937;
+  padding-top: 0.5rem;
+}
+
+.quejas-admin__detail-label {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.quejas-admin__detail-text {
+  margin: 0.35rem 0 0 0;
+  line-height: 1.6;
+  color: #e2e8f0;
+}
+
+.quejas-admin__person {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.quejas-admin__avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #1d4ed8;
+  color: #e2e8f0;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.quejas-admin__person-name {
+  padding-top: 0.1rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+.quejas-admin__person-email {
+  margin: 0.1rem 0 0 0;
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.quejas-admin__placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: #94a3b8;
+}
+
+@media (max-width: 980px) {
+  .quejas-admin {
+    grid-template-columns: 1fr;
+  }
+
+  .quejas-admin__detail-head {
+    flex-direction: column;
+  }
+
+  .quejas-admin__item-meta {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+}

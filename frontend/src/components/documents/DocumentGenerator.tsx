@@ -270,16 +270,18 @@ const DocumentGenerator = ({ canGenerateDocs = true }: DocumentGeneratorProps) =
     }
   };
 
+  const showWarning = !canGenerateDocs && templates.length === 0;
+
   return (
     <div className="docgen">
-      {!canGenerateDocs ? (
+      {showWarning ? (
         <div className="docgen__alert">
           <div className="docgen__alert-icon">!</div>
           <div>
-            <p className="docgen__alert-title">No es posible generar este documento</p>
+            <p className="docgen__alert-title">No es posible generar documentos</p>
             <p className="docgen__alert-text">
-              Actualmente no cumples los requisitos obligatorios para la generación del documento.
-              Si tienes dudas, envía una queja al área responsable.
+              Actualmente no cumples los requisitos obligatorios para generar documentos. Si tienes dudas,
+              envía una queja al área responsable.
             </p>
           </div>
         </div>

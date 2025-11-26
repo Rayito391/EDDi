@@ -9,6 +9,15 @@ from app.models.tipo_documento import TipoDocumento
 from app.models.tutoria_docente import TutoriaDocente
 from app.models.documento_generado import DocumentoGenerado
 from app.models.expediente_docente import ExpedienteDocente
+from app.models.estatus_laboral_periodo import EstatusLaboralPeriodo
+from app.models.horario_docente import HorarioDocente
+from app.models.materia_docente import MateriaDocente
+from app.models.proyecto_docente import ProyectoDocente
+from app.models.cvu_control_docente import CVUControlDocente
+from app.models.licencia_docente import LicenciaDocente
+from app.models.grado_estudio_docente import GradoEstudioDocente
+from app.models.liberacion_docente import LiberacionDocente
+from app.models.evaluacion_docente import EvaluacionDocente
 from app.utils.auth import docente_from_request
 
 # PDF base de ejemplo para preview/descarga
@@ -44,30 +53,116 @@ documentos_blueprint = Blueprint('documentos', __name__, url_prefix='/documentos
 ('Documento 13', 'Evaluaciones departamentales y autoevaluación (licenciatura o posgrado)', NULL, NULL),
 ('Documento 14', 'Evaluaciones del desempeño frente a grupo (mínimo 60% del estudiantado)', NULL, NULL)
 """
+def _get_latest(model, docente_id):
+    return db.session.query(model).filter_by(docente_id=docente_id).order_by(model.id.desc()).first()
+
+
+def _eligibility_for_docente(docente_id: int):
+    estatus = _get_latest(EstatusLaboralPeriodo, docente_id)
+    horario = _get_latest(HorarioDocente, docente_id)
+    materias_2024 = (
+        db.session.query(MateriaDocente)
+        .filter(
+            MateriaDocente.docente_id == docente_id,
+            MateriaDocente.semestre.like('2024%'),
+        )
+        .count()
+    )
+    materias_2025 = (
+        db.session.query(MateriaDocente)
+        .filter(
+            MateriaDocente.docente_id == docente_id,
+            MateriaDocente.semestre.like('2025%'),
+        )
+        .count()
+    )
+    proyecto_vigente = db.session.query(ProyectoDocente).filter_by(docente_id=docente_id).count() > 0
+    cvu = _get_latest(CVUControlDocente, docente_id)
+    licencia = _get_latest(LicenciaDocente, docente_id)
+    grado = _get_latest(GradoEstudioDocente, docente_id)
+    liberacion = _get_latest(LiberacionDocente, docente_id)
+    eval_departamental = (
+        db.session.query(EvaluacionDocente)
+        .filter_by(docente_id=docente_id, tipo_evaluacion='Desempeno')
+        .order_by(EvaluacionDocente.id.desc())
+        .first()
+    )
+    eval_estudiantes = (
+        db.session.query(EvaluacionDocente)
+        .filter_by(docente_id=docente_id, tipo_evaluacion='Estudiantes')
+        .order_by(EvaluacionDocente.id.desc())
+        .first()
+    )
+
+    def asistencia_ok():
+        if not estatus or not estatus.dias_laborales_totales:
+            return False
+        if estatus.total_faltas is None:
+            return False
+        asistencia = 100 * (estatus.dias_laborales_totales - estatus.total_faltas) / estatus.dias_laborales_totales
+        return asistencia >= 90
+
+    checks = {
+        1: bool(
+            estatus
+            and (estatus.tipo_nombramiento or '').lower().find('completo') != -1
+            and (estatus.estatus_plaza_inicio is None or estatus.estatus_plaza_inicio <= datetime(2024, 1, 1).date())
+            and not estatus.tipo_sancion
+            and asistencia_ok()
+        ),
+        2: bool(estatus and estatus.percepcion_q07_2025 is not None),
+        3: bool(horario and horario.carga_reglamentaria and materias_2024 > 0 and materias_2025 > 0),
+        4: True,  # depende de descarga de formato, se permite mostrar
+        6: bool(cvu),
+        7: bool(materias_2024 > 0),
+        8: bool(licencia and licencia.tipo_licencia and licencia.es_oficio_autorizado == 'SI'),
+        9: bool(licencia and licencia.tipo_licencia),
+        10: bool(grado and (grado.folio_cedula or grado.grado_obtenido)),
+        11: bool(liberacion and liberacion.esta_liberado == 'SI'),
+        12: bool(liberacion and liberacion.esta_liberado == 'SI'),
+        13: bool(eval_departamental and eval_departamental.calificacion >= 70),
+        14: bool(
+            eval_estudiantes
+            and eval_estudiantes.calificacion >= 70
+            and (eval_estudiantes.cobertura_estudiantes or 0) >= 60
+        ),
+        18: bool(
+            eval_estudiantes
+            and eval_estudiantes.calificacion >= 70
+            and (eval_estudiantes.cobertura_estudiantes or 0) >= 60
+        ),
+    }
+    return checks
+
+
 @documentos_blueprint.get('/')
 def list_documentos():
-    """Devuelve todos los tipos de documento disponibles."""
+    """Devuelve los tipos de documento que el docente puede levantar."""
     try:
-        docente_from_request(request)  # valida autenticación
+        docente = docente_from_request(request)  # valida autenticación
         tipos = TipoDocumento.query.all()
-        return jsonify([t.to_dict() for t in tipos]), 200
+        checks = _eligibility_for_docente(docente.id)
+        disponibles = []
+        for t in tipos:
+            allowed = checks.get(t.id, True)
+            if allowed:
+                disponibles.append(t.to_dict())
+        return jsonify(disponibles), 200
     except ValueError as e:
         return {"error": e.args}, 401
 
 
 @documentos_blueprint.get('/permiso')
 def puede_generar_documentos():
-    """Indica si el docente tiene asesorados/tutorados (>0 estudiantes asignados)."""
+    """Indica si el docente puede generar al menos un documento, basado en elegibilidad."""
     try:
         docente = docente_from_request(request)
-        total_estudiantes = (
-            db.session.query(func.coalesce(func.sum(TutoriaDocente.num_estudiantes), 0))
-            .filter(TutoriaDocente.docente_id == docente.id)
-            .scalar()
-        )
+        checks = _eligibility_for_docente(docente.id)
+        tipos = TipoDocumento.query.all()
+        disponibles = [t for t in tipos if checks.get(t.id, True)]
         return {
-            "puede_generar": bool(total_estudiantes and total_estudiantes > 0),
-            "total_estudiantes": int(total_estudiantes or 0),
+            "puede_generar": len(disponibles) > 0,
+            "total_documentos_disponibles": len(disponibles),
         }
     except ValueError as e:
         return {"error": e.args}, 401

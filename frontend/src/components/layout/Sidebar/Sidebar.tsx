@@ -48,7 +48,6 @@ const NAV_ITEMS: Record<SidebarRole, NavItem[]> = {
     { key: 'inicio', label: 'Inicio', icon: HomeIcon },
     { key: 'quejas', label: 'Revisar quejas', icon: SearchIcon },
     { key: 'perfil', label: 'Mi perfil', icon: ProfileIcon },
-    { key: 'quejas', label: 'Revisar quejas', icon: SearchIcon },
   ],
 };
 

@@ -9,6 +9,8 @@ import MyDocuments from './components/documents/MyDocuments';
 import CustomButton from './components/global/CustomButton/CustomButton';
 import DocentesList from './components/docentes/DocentesList';
 import AsignarTutorados from './components/desarrollo/AsignarTutorados';
+import AsignarAsesorados from './components/desarrollo/AsignarAsesorados';
+import QuejasAdmin from './components/quejas/QuejasAdmin';
 
 function AppContent() {
   const { isLoggedIn, user, role, login, logout, loading, error } = useAuth();
@@ -29,6 +31,9 @@ function AppContent() {
   const [signatureMsg, setSignatureMsg] = useState<string | null>(null);
   const [signatureError, setSignatureError] = useState<string | null>(null);
   const [signatureLoading, setSignatureLoading] = useState(false);
+  const [quejasList, setQuejasList] = useState<any[]>([]);
+  const [quejasLoading, setQuejasLoading] = useState(false);
+  const [quejasListError, setQuejasListError] = useState<string | null>(null);
   const selectedDocente = selectedDocenteId
     ? docentesList.find((d) => d.id === selectedDocenteId)
     : null;
@@ -59,6 +64,29 @@ function AppContent() {
     };
     if (role === 'subdireccion' && activeSection === 'firmas') {
       fetchDocentes();
+    }
+  }, [role, activeSection, apiBase]);
+
+  useEffect(() => {
+    const fetchQuejas = async () => {
+      try {
+        setQuejasLoading(true);
+        setQuejasListError(null);
+        const res = await fetch(`${apiBase}/quejas/?solo_propias=1`, { credentials: 'include' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data?.error || 'No se pudieron cargar tus quejas');
+        }
+        setQuejasList(Array.isArray(data) ? data : data?.quejas || []);
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Error al cargar tus quejas';
+        setQuejasListError(msg);
+      } finally {
+        setQuejasLoading(false);
+      }
+    };
+    if (role === 'docente' && activeSection === 'quejas') {
+      fetchQuejas();
     }
   }, [role, activeSection, apiBase]);
 
@@ -159,6 +187,17 @@ function AppContent() {
       setQuejaMsg('Queja enviada correctamente');
       setQuejaTitulo('');
       setQuejaDesc('');
+      setQuejasList((prev) => [
+        {
+          id: data?.id || Date.now(),
+          titulo: quejaTitulo.trim(),
+          descripcion: quejaDesc.trim(),
+          estado_queja: 'Pendiente',
+          fecha_queja: new Date().toISOString(),
+          docente_id: user?.id,
+        },
+        ...prev,
+      ]);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error al enviar la queja';
       setQuejaError(msg);
@@ -234,6 +273,9 @@ function AppContent() {
     setQuejaMsg(null);
     setQuejaError(null);
     setQuejaLoading(false);
+    setQuejasList([]);
+    setQuejasListError(null);
+    setQuejasLoading(false);
     // Limpia selección de firmas
     setSelectedDocenteId(null);
     setSignatureFile(null);
@@ -276,6 +318,10 @@ function AppContent() {
             <DocentesList />
           ) : activeSection === 'asignarTutorados' && role === 'desarrollo' ? (
             <AsignarTutorados />
+          ) : activeSection === 'asignarAsesorados' && role === 'desarrollo' ? (
+            <AsignarAsesorados />
+          ) : activeSection === 'quejas' && role === 'administrativo' ? (
+            <QuejasAdmin />
           ) : activeSection === 'firmas' && role === 'subdireccion' ? (
             <div className="firmas-panel">
               <h2>Firmas</h2>
@@ -372,6 +418,54 @@ function AppContent() {
               </div>
               {quejaMsg && <p className="quejas-status quejas-status--ok">{quejaMsg}</p>}
               {quejaError && <p className="quejas-status quejas-status--error">{quejaError}</p>}
+              {role === 'docente' && (
+                <div className="quejas-list">
+                  <div className="quejas-list__header">
+                    <h3>Mis quejas</h3>
+                    {quejasLoading && <span className="quejas-list__pill">Cargando...</span>}
+                  </div>
+                  {quejasListError && (
+                    <p className="quejas-status quejas-status--error">{quejasListError}</p>
+                  )}
+                  <ul>
+                    {quejasList
+                      .slice()
+                      .sort((a, b) => {
+                        const priority = (estado: string) => {
+                          if ((estado || '').toLowerCase() === 'pendiente') return 0;
+                          if ((estado || '').toLowerCase().includes('proceso')) return 1;
+                          return 2;
+                        };
+                        const byEstado = priority(a.estado_queja) - priority(b.estado_queja);
+                        if (byEstado !== 0) return byEstado;
+                        return new Date(b.fecha_queja).getTime() - new Date(a.fecha_queja).getTime();
+                      })
+                      .map((q) => (
+                        <li key={q.id} className="quejas-list__item">
+                          <div>
+                            <p className="quejas-list__title">{q.titulo}</p>
+                            <p className="quejas-list__desc">{q.descripcion}</p>
+                            {q.observaciones_resolucion && (
+                              <p className="quejas-list__obs">
+                                Observaciones: {q.observaciones_resolucion}
+                              </p>
+                            )}
+                          </div>
+                          <span
+                            className={`quejas-list__status quejas-admin__status--${(q.estado_queja || '')
+                              .toLowerCase()
+                              .replace(/\s+/g, '-')}`}
+                          >
+                            {q.estado_queja}
+                          </span>
+                        </li>
+                      ))}
+                    {!quejasList.length && !quejasLoading && (
+                      <li className="quejas-list__empty">Aún no has registrado quejas.</li>
+                    )}
+                  </ul>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -450,6 +544,31 @@ function AppContent() {
                     label="Ir a Asignar Asesorados"
                     className="custom-button--small"
                     onClick={() => handleSelectSection('asignarAsesorados')}
+                  />
+                  <CustomButton
+                    variant="outline"
+                    label="Mi Perfil"
+                    className="custom-button--small"
+                    onClick={() => handleSelectSection('perfil')}
+                  />
+                  <div className="docente-info">
+                    <p className="docente-info__name">
+                      {`${
+                        [user?.primer_nombre, user?.segundo_nombre, user?.apellido_paterno, user?.apellido_materno]
+                          .filter(Boolean)
+                          .join(' ') || 'Usuario'
+                      }`}
+                    </p>
+                    <p className="docente-info__email">{user?.email || ''}</p>
+                  </div>
+                </div>
+              ) : role === 'administrativo' ? (
+                <div className="quick-actions">
+                  <CustomButton
+                    variant="outline"
+                    label="Revisar quejas"
+                    className="custom-button--small"
+                    onClick={() => handleSelectSection('quejas')}
                   />
                   <CustomButton
                     variant="outline"

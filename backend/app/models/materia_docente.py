@@ -3,7 +3,7 @@ from app import Base, db
 
 class MateriaDocente(Base):
     __tablename__ = 'materias_docentes'
-    id = db.Column('asignaturdocenteid', db.Integer, primary_key=True)
+    id = db.Column('asignaturadocenteid', db.Integer, primary_key=True)
     docente_id = db.Column('docenteid', db.Integer, db.ForeignKey('docentes.docenteid'), nullable=False)
     materia_id = db.Column('materiaid', db.Integer, db.ForeignKey('materias.materiaid'), nullable=False)
     total_alumnos = db.Column('totalalumnos', db.Integer, nullable=False)

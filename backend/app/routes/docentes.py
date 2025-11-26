@@ -6,6 +6,7 @@ from app.models.tutoria_docente import TutoriaDocente
 from app.models.expediente_docente import ExpedienteDocente
 from app.models.documento_generado import DocumentoGenerado
 from app.models.tipo_documento import TipoDocumento
+from app.routes.documentos import _eligibility_for_docente
 
 
 docentes_blueprint = Blueprint('docentes', __name__, url_prefix='/docentes')
@@ -19,57 +20,30 @@ def get_all():
         else Docente.query.all()
     )
 
-    # Tutorados sum
+    # Tutorados (solo tipo_registro = 'tutorado')
     tutorados_sub = (
         db.session.query(
             TutoriaDocente.docente_id.label('docente_id'),
             func.coalesce(func.sum(TutoriaDocente.num_estudiantes), 0).label('tutorados'),
         )
+        .filter(func.lower(TutoriaDocente.tipo_registro) == 'tutorado')
         .group_by(TutoriaDocente.docente_id)
         .subquery()
     )
 
-    # Documentos generados total
-    docs_total_sub = (
+    # Asesorados (solo tipo_registro = 'asesorado')
+    asesorados_sub = (
         db.session.query(
-            ExpedienteDocente.docente_id.label('docente_id'),
-            func.count(DocumentoGenerado.id).label('total_docs'),
+            TutoriaDocente.docente_id.label('docente_id'),
+            func.coalesce(func.sum(TutoriaDocente.num_estudiantes), 0).label('asesorados'),
         )
-        .join(DocumentoGenerado, DocumentoGenerado.expediente_id == ExpedienteDocente.id)
-        .group_by(ExpedienteDocente.docente_id)
-        .subquery()
-    )
-
-    # Documentos inicio (sin factor asociado)
-    docs_inicio_sub = (
-        db.session.query(
-            ExpedienteDocente.docente_id.label('docente_id'),
-            func.count(DocumentoGenerado.id).label('docs_inicio'),
-        )
-        .join(DocumentoGenerado, DocumentoGenerado.expediente_id == ExpedienteDocente.id)
-        .join(TipoDocumento, TipoDocumento.id == DocumentoGenerado.tipo_documento_id)
-        .filter(func.coalesce(TipoDocumento.factor_asociado, '') == '')
-        .group_by(ExpedienteDocente.docente_id)
-        .subquery()
-    )
-
-    # Documentos factor (con factor asociado)
-    docs_factor_sub = (
-        db.session.query(
-            ExpedienteDocente.docente_id.label('docente_id'),
-            func.count(DocumentoGenerado.id).label('docs_factor'),
-        )
-        .join(DocumentoGenerado, DocumentoGenerado.expediente_id == ExpedienteDocente.id)
-        .join(TipoDocumento, TipoDocumento.id == DocumentoGenerado.tipo_documento_id)
-        .filter(func.coalesce(TipoDocumento.factor_asociado, '') != '')
-        .group_by(ExpedienteDocente.docente_id)
+        .filter(func.lower(TutoriaDocente.tipo_registro) == 'asesorado')
+        .group_by(TutoriaDocente.docente_id)
         .subquery()
     )
 
     tutorados_map = {row.docente_id: row.tutorados for row in db.session.query(tutorados_sub).all()}
-    total_map = {row.docente_id: row.total_docs for row in db.session.query(docs_total_sub).all()}
-    inicio_map = {row.docente_id: row.docs_inicio for row in db.session.query(docs_inicio_sub).all()}
-    factor_map = {row.docente_id: row.docs_factor for row in db.session.query(docs_factor_sub).all()}
+    asesorados_map = {row.docente_id: row.asesorados for row in db.session.query(asesorados_sub).all()}
 
     result = []
     for docente in docentes:
@@ -77,9 +51,21 @@ def get_all():
         if item.get("puesto_academico"):
             item["puesto_academico"] = item["puesto_academico"].capitalize()
         item["tutorados"] = int(tutorados_map.get(docente.id, 0))
-        item["total_documentos"] = int(total_map.get(docente.id, 0))
-        item["documentos_inicio"] = int(inicio_map.get(docente.id, 0))
-        item["documentos_factor"] = int(factor_map.get(docente.id, 0))
+        item["asesorados"] = int(asesorados_map.get(docente.id, 0))
+        # Documentos ya generados
+        total_generados = (
+            db.session.query(func.count(DocumentoGenerado.id))
+            .join(ExpedienteDocente, DocumentoGenerado.expediente_id == ExpedienteDocente.id)
+            .filter(ExpedienteDocente.docente_id == docente.id)
+            .scalar()
+            or 0
+        )
+        # Documentos que podría generar según elegibilidad actual
+        tipos = TipoDocumento.query.all()
+        checks = _eligibility_for_docente(docente.id)
+        disponibles = [t for t in tipos if checks.get(t.id, True)]
+        item["total_documentos"] = int(total_generados)
+        item["documentos_inicio"] = f"{len(disponibles)} / {len(tipos)}"
         result.append(item)
 
     return {"docentes": result}, 200

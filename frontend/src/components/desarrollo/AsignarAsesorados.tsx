@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import CustomButton from '../global/CustomButton/CustomButton';
-import './AsignarTutorados.css';
+import './AsignarTutorados.css'; // reutilizamos estilos
 
 type Docente = {
   id: number;
@@ -10,15 +10,15 @@ type Docente = {
   segundo_nombre?: string;
   apellido_paterno?: string;
   apellido_materno?: string;
-  tutorados?: number;
+  asesorados?: number;
 };
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
-const AsignarTutorados = () => {
+const AsignarAsesorados = () => {
   const [docentes, setDocentes] = useState<Docente[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [numTutorados, setNumTutorados] = useState<number>(0);
+  const [numAsesorados, setNumAsesorados] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,9 +64,7 @@ const AsignarTutorados = () => {
     d
       ? [d.primer_nombre, d.segundo_nombre, d.apellido_paterno, d.apellido_materno]
           .filter(Boolean)
-          .join(' ') ||
-        d.email ||
-        'Docente'
+          .join(' ') || d.email || 'Docente'
       : '';
 
   const handleSave = async () => {
@@ -74,8 +72,8 @@ const AsignarTutorados = () => {
       setError('Selecciona un docente.');
       return;
     }
-    if (numTutorados < 0) {
-      setError('El número de tutorados no puede ser negativo.');
+    if (numAsesorados < 0) {
+      setError('El número de asesorados no puede ser negativo.');
       return;
     }
     try {
@@ -83,24 +81,27 @@ const AsignarTutorados = () => {
       setError(null);
       setMsg(null);
 
-      const res = await fetch(`${API_BASE}/tutorias/docentes/${selectedId}`, {
+      // Endpoint de asesorados
+      const res = await fetch(`${API_BASE}/asesorados/docentes/${selectedId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ num_estudiantes: numTutorados }),
+        body: JSON.stringify({ num_asesorados: numAsesorados }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data?.error || 'No se pudo guardar los tutorados');
+        throw new Error(data?.error || 'No se pudo guardar los asesorados');
       }
 
-      if (data?.num_estudiantes !== undefined) {
+      if (data?.num_asesorados !== undefined) {
         setDocentes((prev) =>
-          prev.map((d) => (d.id === selectedId ? { ...d, tutorados: data.num_estudiantes } : d))
+          prev.map((d) =>
+            d.id === selectedId ? { ...d, asesorados: data.num_asesorados } : d
+          )
         );
       }
-      setMsg('Tutorados guardados correctamente.');
-      setNumTutorados(0);
+      setMsg('Asesorados guardados correctamente.');
+      setNumAsesorados(0);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Error al guardar';
       setError(msg);
@@ -112,10 +113,8 @@ const AsignarTutorados = () => {
   return (
     <div className="asignar-panel">
       <div className="asignar-card">
-        <h2>Asignar tutorados</h2>
-        <p className="asignar-subtitle">
-          Selecciona el docente y captura el número de estudiantes que tutoriza.
-        </p>
+        <h2>Asignar asesorados</h2>
+        <p className="asignar-subtitle">Selecciona el docente y captura el número de estudiantes que asesora.</p>
         {error && <p className="asignar-status asignar-status--error">{error}</p>}
         {msg && <p className="asignar-status asignar-status--ok">{msg}</p>}
 
@@ -134,13 +133,13 @@ const AsignarTutorados = () => {
           ))}
         </select>
 
-        <label className="asignar-label">Número de tutorados</label>
+        <label className="asignar-label">Número de asesorados</label>
         <input
           type="number"
           min={0}
           className="asignar-input"
-          value={numTutorados}
-          onChange={(e) => setNumTutorados(Number(e.target.value) || 0)}
+          value={numAsesorados}
+          onChange={(e) => setNumAsesorados(Number(e.target.value) || 0)}
         />
 
         <div className="asignar-actions">
@@ -167,10 +166,10 @@ const AsignarTutorados = () => {
               <strong>Puesto:</strong> {selectedDocente.puesto_academico || 'Docente'}
             </li>
             <li>
-              <strong>Tutorados actuales:</strong> {selectedDocente.tutorados ?? 0}
+              <strong>Asesorados actuales:</strong> {selectedDocente.asesorados ?? 0}
             </li>
             <li>
-              <strong>Cantidad de tutorados:</strong> {numTutorados}
+              <strong>Cantidad de asesorados:</strong> {numAsesorados}
             </li>
           </ul>
         ) : (
@@ -181,4 +180,4 @@ const AsignarTutorados = () => {
   );
 };
 
-export default AsignarTutorados;
+export default AsignarAsesorados;
