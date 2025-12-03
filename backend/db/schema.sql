@@ -271,6 +271,7 @@ Create Table Comisiones_Oficios_Docentes (
     ComisionOficioDocenteId Int Not Null DEFAULT nextval('comisiones_seq'),
     DocenteID Int Not Null,
     TipoComision Varchar(100) Not Null,
+    
     ClaveActividad Varchar(10) Not Null,
     FolioOficioComision Varchar(50),
     FolioConstanciaCumplimiento Varchar(50),

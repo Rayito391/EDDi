@@ -2,15 +2,16 @@
 -- Seed consolidado sin duplicados
 -- ==========================
 
--- 1) Cat�logos base
+-- 1) Catalogos base
+--Insert para materias
 INSERT INTO Materias (MateriaId, NombreMateria, Nivel, EsDiferenteBase)
 VALUES (1, 'Ingenieria de Software', 'Licenciatura', 'NO')
 ON CONFLICT (MateriaId) DO NOTHING;
-
+----Insert para convocatorias
 INSERT INTO Convocatorias (ConvocatoriaId, NombreConvocatoria, Periodo, FechaInicio, FechaFin)
 VALUES (1, 'Estimulo al Desempeno Docente 2025', 'Enero-Diciembre 2025', '2025-01-15', '2025-02-15')
 ON CONFLICT (ConvocatoriaId) DO NOTHING;
-
+--Insert para programas academicos
 INSERT INTO Programas_Academicos (ProgramaId, NombrePrograma, NivelPrograma, Acreditado, SNP_Vigente, OrganoAcreditador, FolioRegistroDDIE_DPII)
 VALUES (1, 'Ing. En Sistemas Computacionales', 'Licenciatura', 'SI', 'SI', 'CACEI', 'DDIE-2024-001')
 ON CONFLICT (ProgramaId) DO NOTHING;
@@ -35,6 +36,7 @@ ON CONFLICT (TipoDocumentoID) DO NOTHING;
 
 -- 2) Personal y Docentes base (demo)
 WITH p_doc AS (
+  --Insert para personal
   INSERT INTO Personal (PersonaId, PrimerNombre, SegundoNombre, ApellidoPaterno, ApellidoMaterno, Curp, Rfc, FechaIngreso)
   VALUES (10, 'Ana', 'Maria', 'Lopez', 'Gomez', 'LOPA850101MDF00100', 'LOGA850101ABC', '2024-08-01')
   ON CONFLICT (PersonaId) DO NOTHING
@@ -55,6 +57,7 @@ WITH p_doc AS (
   ON CONFLICT (PersonaId) DO NOTHING
   RETURNING PersonaId
 )
+--Insert para docentes
 INSERT INTO Docentes (DocenteId, PersonaId, PuestoAcademico, Email, PasswordEmail)
 SELECT 10, PersonaId, 'docente', 'docente1@ejemplo.edu', 'pass_docente' FROM p_doc
 UNION ALL SELECT 11, PersonaId, 'subdireccion', 'subdireccion@ejemplo.edu', 'pass_subdireccion' FROM p_sub
@@ -181,40 +184,52 @@ ON CONFLICT (QuejaId) DO NOTHING;
 INSERT INTO Personal (PersonaId, PrimerNombre, ApellidoPaterno, ApellidoMaterno, Curp, Rfc, FechaIngreso)
 VALUES (20, 'Prueba', 'Completo', 'Elegible', 'COMC900101HDF02020', 'COMC900101000', '2020-01-01')
 ON CONFLICT (PersonaId) DO NOTHING;
+-----------------------------------------
 INSERT INTO Docentes (DocenteId, PersonaId, PuestoAcademico, Email, PasswordEmail)
 VALUES (20, 20, 'Docente', 'doc_full@ejemplo.edu', 'pass_full')
 ON CONFLICT (DocenteId) DO NOTHING;
+-----------------------------------------------
 INSERT INTO Expediente_Docente (ExpedienteDocenteId, ConvocatoriaId, DocenteId, Periodo, FechaCreacion)
 VALUES (20, 1, 20, 'Enero-Diciembre 2025', CURRENT_DATE)
 ON CONFLICT (ExpedienteDocenteId) DO NOTHING;
+-------------------------------------------------
 INSERT INTO Estatus_Laboral_Periodo (EstatusPeriodoId, DocenteId, EstatusPlaza, EstatusPlazaInicio, TipoNombramiento, PercepcionQ07_2025, PeriodoEvaluado, DiasLaboralesTotales, TotalFaltas, TipoSancion)
 VALUES (20, 20, 'E3817', '2023-12-15', 'Tiempo Completo', 15000, '2024', 200, 5, NULL)
 ON CONFLICT (EstatusPeriodoId) DO NOTHING;
+-------------------------------------
 INSERT INTO Horarios_Docentes (HorarioDocenteId, DocenteId, Semestre, HorarioInicio, HorarioFin, CargaReglamentaria)
-VALUES (20, 20, '2025-1', '08:00:00', '10:00:00', 'SI')
+VALUES (47, 47, '2025-2', '08:00:00', '10:00:00', 'SI')
 ON CONFLICT (HorarioDocenteId) DO NOTHING;
+---------------------------------------
 INSERT INTO Materias_Docentes (AsignaturaDocenteId, DocenteId, MateriaId, TotalAlumnos, Semestre, EsComplementaria)
 VALUES (20, 20, 1, 30, '2024-2', 'NO'),
        (21, 20, 1, 25, '2025-1', 'NO')
 ON CONFLICT (AsignaturaDocenteId) DO NOTHING;
+-----------------------------------
 INSERT INTO Proyectos_Investigacion (ProyectoId, NombreProyecto, TipoProyecto, VigenciaInicio, VigenciaFin, FuenteFinanciamiento)
 VALUES (2, 'IA aplicada a EDDi', 'Investigacion Aplicada', '2024-01-01', '2025-12-31', 'TecNM')
 ON CONFLICT (ProyectoId) DO NOTHING;
+-----------------------------------------
 INSERT INTO Proyectos_Docentes (ProyectosDocentesId, DocenteId, ProyectoId, Rol)
 VALUES (2, 20, 2, 'Responsable Tecnico')
 ON CONFLICT (ProyectosDocentesId) DO NOTHING;
+------------------------------------------------
 INSERT INTO CVU_Control_Docente (CVUControlDocenteId, DocenteId, FechaUltimaActualizacion, EstadoCVU, FolioConstancia)
 VALUES (2, 20, '2025-01-05', 'Actualizado', 'CVU-TEC-2025-020')
 ON CONFLICT (CVUControlDocenteId) DO NOTHING;
+-----------------------------------------------
 INSERT INTO Licencias_Docentes (LicenciaDocenteId, DocenteId, TipoLicencia, FolioAutorizacion, FechaInicio, FechaFin, EsOficioAutorizado)
 VALUES (20, 20, 'Sabatico', 'LIC-2025-020', '2025-01-10', '2025-06-30', 'SI')
 ON CONFLICT (LicenciaDocenteId) DO NOTHING;
+----------------------------------------
 INSERT INTO Grados_Estudios_Docentes (GradoEstudioDocenteId, DocenteId, GradoObtenido, FolioCedula, FechaObtencion, InstitucionEmisora)
 VALUES (20, 20, 'Doctorado', 'CED-2025-020', '2020-07-01', 'TecNM')
 ON CONFLICT (GradoEstudioDocenteId) DO NOTHING;
+--------------------------
 INSERT INTO Liberaciones_Docentes (LiberacionDocenteId, DocenteId, Semestre, TipoLiberacion, FolioLiberacion, CumplimientoPorcentaje, EstaLiberado)
 VALUES (20, 20, '2024-1', 'Academica', 'LIB-2024-020', 100.00, 'SI')
 ON CONFLICT (LiberacionDocenteId) DO NOTHING;
+-------------
 INSERT INTO Evaluaciones_Docentes (EvaluacionDocenteId, DocenteId, Semestre, TipoEvaluacion, Calificacion, CoberturaEstudiantes, VoBo_SubAcademica)
 VALUES (20, 20, '2024-2', 'Desempeno', 90, 100, 'SI'),
        (21, 20, '2024-2', 'Estudiantes', 90, 80, 'SI')
